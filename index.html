@@ -9,7 +9,7 @@
   --bg:#16112a; --bg2:#211a3b; --panel:#2b2250; --panel2:#352a62; --borde:#4b3c80;
   --txt:#f4effd; --muted:#c3b8e0; --oro:#f6c544; --oro2:#b8860b;
   --perg:#fbf4e2; --perg2:#efe3c2; --tinta:#2a1f15; --azul:#1B4D7E; --azul2:#4A7CA8;
-  --ok:#2f8f5b; --okc:#dff3e7; --mal:#c0392b; --malc:#fbe2df; --rojo:#e74c3c;
+  --ok:#22764a; --okc:#dff3e7; --mal:#c0392b; --malc:#fbe2df; --rojo:#c0392b;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -118,7 +118,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--oro)}
 .prod{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--borde)}
 .prod .ico{font-size:30px;width:40px;text-align:center}
 .prod .d{flex:1;font-size:16px}
-.prod .btn{width:auto;margin:0;padding:10px 12px;font-size:16px}
+.prod .btn{width:auto;margin:0;padding:10px 12px;font-size:16px;min-height:46px}
 /* ficha */
 .ficha .fila{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--borde)}
 .barra{height:12px;background:#120d24;border-radius:6px;overflow:hidden;margin-top:4px}
@@ -126,18 +126,72 @@ details summary{cursor:pointer;font-weight:700;color:var(--oro)}
 .tema{padding:6px 0}
 .copiado{color:#8fe3b0;font-weight:700;min-height:1.3em;margin-top:6px}
 .pie{margin-top:18px;text-align:center}
-.link{background:none;border:none;color:var(--muted);text-decoration:underline;font-size:15px;cursor:pointer;font-family:inherit;padding:8px}
+.link{background:none;border:none;color:var(--muted);text-decoration:underline;font-size:15px;cursor:pointer;font-family:inherit;
+  padding:10px 12px;min-height:46px}
 textarea.oculto{position:fixed;left:-9999px;top:0}
+/* auditoría 28-10: selección + ataque, marcas no cromáticas, foco, teclado, tamaños */
+.op.sel{border-color:var(--azul);background:#e6eef7;box-shadow:0 0 0 3px rgba(27,77,126,.35)}
+.op .txt{flex:1}
+.op .marca{flex:none;font-weight:800;font-size:16px;white-space:nowrap}
+.op.bien .marca{color:#155c37}
+.op.malo .marca{color:#8e2318}
+.atacar{margin-top:12px}
+button:focus-visible{outline:3px solid var(--oro);outline-offset:2px}
+.carta button:focus-visible{outline-color:var(--azul)}
+.atajo{display:none;text-align:center;color:var(--muted);font-size:15px;margin-top:8px}
+@media (hover:hover) and (pointer:fine){
+  .op:not(:disabled):hover{border-color:var(--azul2);background:#fff}
+  .atajo{display:block}
+}
+#fb{scroll-margin-top:76px}
+.confirma{border-color:var(--rojo);background:#3a1d2a}
+.confirma .btn.peligro{background:linear-gradient(#e7645a,#c0392b);color:#fff;box-shadow:0 4px 0 #7d241b}
+.graf{max-width:540px;margin-left:auto;margin-right:auto}
+@media (max-width:400px){
+  #app{padding:8px 10px 44px}
+  .carta{padding:12px 10px}
+}
+@media (min-width:768px){
+  body{font-size:18px}
+  #app{max-width:640px}
+}
+@media (prefers-reduced-motion: reduce){
+  .golpe{animation:none}
+  .muerto{transition:none}
+}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
 "use strict";
-const BANCO = [{"id":"z1n1","zona":1,"tipo":"n","tema":"Tablas","enun":"El herrero de la aldea anotó cuántas espadas reparó cada día durante 20 días.","tabla":{"enc":["Espadas reparadas","N.° de días"],"filas":[[1,3],[2,5],[3,6],[4,4],[5,2]]},"preg":"¿En cuántos días reparó a lo más 3 espadas?","ops":["14","12","8","6"],"exp":"«A lo más 3» significa 1, 2 o 3 espadas: 3 + 5 + 6 = 14 (la frecuencia acumulada hasta 3). Ojo: 12 corresponde a «al menos 3» y 8 a «menos de 3»."},{"id":"z1n2","zona":1,"tipo":"n","tema":"Tablas","enun":"En la posada se registró la bebida que pidió cada uno de 40 aventureros.","tabla":{"enc":["Bebida","Aventureros"],"filas":[["Jugo de maná",14],["Té de hierbas",10],["Agua de manantial",16]]},"preg":"¿Qué porcentaje de los aventureros pidió té de hierbas?","ops":["25 %","10 %","35 %","40 %"],"exp":"Frecuencia relativa = 10/40 = 0,25, es decir, 25 %. El 10 % confunde la frecuencia absoluta con el porcentaje; 35 % y 40 % son el jugo (14/40) y el agua (16/40)."},{"id":"z1n3","zona":1,"tipo":"n","tema":"Tablas","enun":"En un torneo, cada arquero disparó 3 flechas. La tabla muestra cuántas acertó cada uno de los 20 arqueros.","tabla":{"enc":["Flechas acertadas","N.° de arqueros"],"filas":[[0,4],[1,"k"],[2,7],[3,3],["Total",20]]},"preg":"¿Cuántos arqueros acertaron exactamente 1 flecha?","ops":["6","9","14","3"],"exp":"Las frecuencias suman el total: 4 + k + 7 + 3 = 20, así que k = 20 − 14 = 6. El 14 es la suma de las otras frecuencias, no el valor de k; el 9 sale de olvidar una de ellas (20 − 4 − 7)."},{"id":"z1n4","zona":1,"tipo":"n","tema":"Tablas","enun":"El gremio de magos tiene 80 miembros. La frecuencia relativa de los que dominan el fuego es 0,15.","preg":"¿Cuántos miembros dominan el fuego?","ops":["12","15","68","5"],"exp":"Frecuencia absoluta = frecuencia relativa · total = 0,15 · 80 = 12. El 15 sale de leer 0,15 como «15 personas»; 68 son los que NO dominan el fuego."},{"id":"z1n5","zona":1,"tipo":"n","tema":"Tablas","enun":"Un explorador abrió 20 cofres y contó las monedas de oro de cada uno.","tabla":{"enc":["Monedas","N.° de cofres"],"filas":[[0,2],[1,5],[2,8],[3,3],[4,2]]},"preg":"¿Qué porcentaje de los cofres tenía menos de 3 monedas?","ops":["75 %","40 %","90 %","25 %"],"exp":"«Menos de 3» = 0, 1 o 2 monedas: 2 + 5 + 8 = 15 cofres, y 15/20 = 75 %. El 90 % sería «3 o menos» (18/20) y el 40 % son solo los cofres con 2 monedas."},{"id":"z1j1","zona":1,"tipo":"j","tema":"Tablas","enun":"El escriba anotó cuántas misiones completó cada uno de 18 aventureros, pero dejó la tabla a medio llenar. F es la frecuencia acumulada.","tabla":{"enc":["Misiones","f","F"],"filas":[[1,2,2],[2,"a",6],[3,5,11],[4,"b",17],[5,1,18]]},"preg":"¿Cuánto vale a + b?","ops":["10","23","16","8"],"exp":"Cada F es la anterior más la nueva f: a = 6 − 2 = 4 y b = 17 − 11 = 6, así que a + b = 10. El 23 sale de copiar los valores de F (6 + 17) y el 16, de calcular b = 17 − 5."},{"id":"z1j2","zona":1,"tipo":"j","tema":"Tablas","enun":"Se pesaron 30 dragones bebé y los resultados se agruparon en intervalos.","tabla":{"enc":["Masa (kg)","N.° de dragones"],"filas":[["[10, 20[",4],["[20, 30[",9],["[30, 40[",11],["[40, 50[",6]]},"preg":"¿Cuál de las siguientes afirmaciones es verdadera?","ops":["El intervalo modal es [30, 40[.","La marca de clase de [20, 30[ es 20.","Más de la mitad pesa menos de 30 kg.","La mediana está en el intervalo [20, 30[."],"exp":"El intervalo con mayor frecuencia (11) es [30, 40[. La marca de clase de [20, 30[ es 25, el punto medio. Bajo 30 kg hay 4 + 9 = 13 dragones, menos de la mitad de 30. La mediana está entre los datos 15.º y 16.º, y ambos caen en [30, 40[ (la acumulada pasa de 13 a 24)."},{"id":"z1j3","zona":1,"tipo":"j","tema":"Tablas","enun":"En el registro del gremio, 7 aventureros completaron exactamente 3 misiones. Eso corresponde a una frecuencia relativa de 0,2.","preg":"¿Cuántos aventureros hay en el registro?","ops":["35","14","1,4","70"],"exp":"Frecuencia relativa = f / n, así que 0,2 = 7 / n y n = 7 / 0,2 = 35. El 1,4 sale de multiplicar 7 · 0,2 en vez de dividir; el 70 sale de dividir por 0,1."},{"id":"z2n1","zona":2,"tipo":"n","tema":"Gráficos","enun":"La alquimista del bosque registró las pociones que vendió cada día.","graf":{"t":"bar","cats":["Lun","Mar","Mié","Jue","Vie"],"vals":[12,8,15,10,15],"ymin":0,"ymax":20,"paso":5,"ylab":"Pociones","etiq":true},"preg":"¿Cuántas pociones vendió desde el martes hasta el jueves (ambos incluidos)?","ops":["33","18","15","60"],"exp":"Martes + miércoles + jueves = 8 + 15 + 10 = 33. El 18 deja fuera el miércoles y el 60 es el total de la semana."},{"id":"z2n2","zona":2,"tipo":"n","tema":"Gráficos","enun":"El gráfico muestra el elemento que domina cada uno de los 200 hechiceros de la academia.","graf":{"t":"pie","cats":["Fuego","Agua","Tierra","Aire"],"pct":[35,25,30,10]},"preg":"¿Cuántos hechiceros dominan tierra o aire?","ops":["80","40","60","120"],"exp":"Tierra o aire = 30 % + 10 % = 40 %, y el 40 % de 200 es 80. El 40 es el porcentaje y no la cantidad; 60 es solo tierra y 120 corresponde a fuego y agua."},{"id":"z2n3","zona":2,"tipo":"n","tema":"Gráficos","enun":"El histograma muestra la estatura de 40 elfos.","graf":{"t":"hist","lims":[150,160,170,180,190],"f":[6,10,16,8],"ymax":20,"paso":5,"xlab":"Estatura (cm)","ylab":"N.° de elfos"},"preg":"¿Cuántos elfos miden 170 cm o más?","ops":["24","16","8","32"],"exp":"Desde 170 cm hacia arriba están los intervalos [170, 180[ y [180, 190[: 16 + 8 = 24. El 16 considera un solo intervalo y el 32 cuenta los que miden menos de 180 cm."},{"id":"z2n4","zona":2,"tipo":"n","tema":"Gráficos","enun":"El tesorero del reino anotó el oro guardado en la bóveda al final de cada mes (en miles de monedas).","graf":{"t":"line","cats":["Ene","Feb","Mar","Abr","May","Jun"],"vals":[20,26,23,30,31,25],"ymin":0,"ymax":35,"paso":5,"ylab":"Miles de monedas","etiq":true},"preg":"¿Entre qué meses consecutivos aumentó más el oro?","ops":["De marzo a abril","De enero a febrero","De abril a mayo","De mayo a junio"],"exp":"Los aumentos son: enero→febrero +6, marzo→abril +7 y abril→mayo +1. El mayor es de marzo a abril (+7). De mayo a junio hay un cambio grande, pero es una disminución (−6)."},{"id":"z2n5","zona":2,"tipo":"n","tema":"Gráficos","enun":"El pictograma muestra los escudos forjados por tres herrerías.","graf":{"t":"picto","icono":"🛡️","valor":4,"unidad":"escudos","filas":[["Herrería Norte",3],["Herrería Sur",5],["Herrería Este",2.5]]},"preg":"¿Cuántos escudos más forjó la Herrería Sur que la Herrería Este?","ops":["10","2,5","12","30"],"exp":"Sur: 5 · 4 = 20 escudos. Este: 2,5 · 4 = 10 escudos. Diferencia: 20 − 10 = 10. El 2,5 es la diferencia de símbolos, no de escudos; el 12 aparece si se ignora el medio símbolo."},{"id":"z2j1","zona":2,"tipo":"j","tema":"Gráficos","enun":"Resultados de la votación para elegir al líder del gremio. Un aventurero mira el gráfico y dice: «Ciro sacó como el triple de votos que Aria».","graf":{"t":"bar","cats":["Aria","Bruno","Ciro"],"vals":[94,98,102],"ymin":90,"ymax":104,"paso":2,"ylab":"Votos","etiq":true},"preg":"¿Por qué su afirmación es incorrecta?","ops":["El eje parte en 90: la diferencia real es de solo 8 votos.","Con votos se debe usar un gráfico circular y no de barras.","Ciro obtuvo el doble de votos que Aria y no el triple.","Las barras deberían estar ordenadas de mayor a menor."],"exp":"Las barras parten en 90 y no en 0; por eso la de Ciro (102) se ve tres veces más alta que la de Aria (94). En realidad la diferencia es de solo 8 votos: Ciro tiene apenas un 8,5 % más que Aria."},{"id":"z2j2","zona":2,"tipo":"j","tema":"Gráficos","enun":"En el gráfico circular del ejército real, el sector de los arqueros mide 72°. El ejército tiene 250 soldados.","preg":"¿Cuántos soldados son arqueros?","ops":["50","72","180","20"],"exp":"72° de 360° es 72/360 = 0,2, o sea el 20 % del círculo, y el 20 % de 250 es 50. El 180 sale de usar 72 como si fuera un porcentaje (72 % de 250); el 20 es el porcentaje, no la cantidad."},{"id":"z2j3","zona":2,"tipo":"j","tema":"Gráficos","enun":"El histograma muestra cuánto tardaron 50 caballeros en cruzar el laberinto.","graf":{"t":"hist","lims":[0,10,20,30,40],"f":[5,15,20,10],"ymax":25,"paso":5,"xlab":"Tiempo (min)","ylab":"N.° de caballeros"},"preg":"¿Cuál de las siguientes afirmaciones es verdadera?","ops":["El 40 % tardó al menos 20 min y menos de 30 min.","La mitad de los caballeros tardó menos de 20 min.","Exactamente 10 caballeros tardaron 30 minutos.","El intervalo [10, 20[ es el de mayor frecuencia."],"exp":"En [20, 30[ hay 20 caballeros, y 20/50 = 40 %. Bajo 20 minutos hay 5 + 15 = 20, que no es la mitad de 50. Los 10 del último intervalo tardaron entre 30 y 40 minutos: el histograma no permite saber cuántos tardaron exactamente 30. El intervalo de mayor frecuencia es [20, 30[."},{"id":"z3n1","zona":3,"tipo":"n","tema":"Medidas","enun":"La tabla muestra cuántos hechizos lanzó cada uno de 10 magos durante un duelo.","tabla":{"enc":["Hechizos","N.° de magos"],"filas":[[1,2],[2,3],[3,4],[4,1]]},"preg":"¿Cuál es el promedio de hechizos por mago?","ops":["2,4","2,5","6","3"],"exp":"Promedio = (1·2 + 2·3 + 3·4 + 4·1) / 10 = 24 / 10 = 2,4. El 2,5 promedia solo los valores 1, 2, 3 y 4 sin las frecuencias; el 6 divide por 4 en vez de por 10; el 3 es la moda."},{"id":"z3n2","zona":3,"tipo":"n","tema":"Medidas","enun":"La tabla muestra cuántos goblins derrotó cada uno de 15 guerreros.","tabla":{"enc":["Goblins","N.° de guerreros"],"filas":[[0,3],[1,4],[2,2],[3,5],[4,1]]},"preg":"¿Cuál es la mediana?","ops":["2","3","1,8","1"],"exp":"Con 15 datos, la mediana es el dato 8.º. Acumulando: 3 (hasta 0), 7 (hasta 1), 9 (hasta 2). El dato 8.º vale 2. El 3 es la moda y el 1,8 es el promedio."},{"id":"z3n3","zona":3,"tipo":"n","tema":"Medidas","enun":"Notas de un aprendiz de mago en seis pruebas: 6,5 ; 5,0 ; 3,0 ; 6,5 ; 4,0 ; 5,5","preg":"¿Cuál es la mediana de sus notas?","ops":["5,25","4,75","6,5","5,0"],"exp":"Primero se ordenan: 3,0 ; 4,0 ; 5,0 ; 5,5 ; 6,5 ; 6,5. Con 6 datos, la mediana es el promedio de los dos centrales: (5,0 + 5,5) / 2 = 5,25. El 4,75 sale de promediar los centrales sin ordenar (3,0 y 6,5); el 6,5 es la moda."},{"id":"z3n4","zona":3,"tipo":"n","tema":"Medidas","enun":"Cuatro cofres tienen, en promedio, 30 monedas. Luego se encuentra un quinto cofre con 55 monedas.","preg":"¿Cuál es el nuevo promedio de monedas por cofre?","ops":["35","42,5","43,75","41"],"exp":"Los 4 cofres suman 4 · 30 = 120 monedas. Con el quinto: 120 + 55 = 175, y 175 / 5 = 35. El 42,5 promedia 30 y 55 como si fueran solo dos datos; el 43,75 divide por 4 en vez de por 5."},{"id":"z3n5","zona":3,"tipo":"n","tema":"Medidas","enun":"Distancia (en metros) a la que lanzaron sus hachas 12 enanos, ya ordenadas: 8 ; 9 ; 11 ; 12 ; 12 ; 14 ; 15 ; 15 ; 16 ; 18 ; 20 ; 23","preg":"¿Cuál es el percentil 25 (P₂₅)?","ops":["11,5","11","12","14,5"],"exp":"Con el método del curso, la posición es 25 · 12 / 100 = 3. Como es entero, P₂₅ es el promedio de los datos 3.º y 4.º: (11 + 12) / 2 = 11,5. Tomar solo el 3.º (11) o solo el 4.º (12) es el error típico; el 14,5 es la mediana."},{"id":"z3j1","zona":3,"tipo":"j","tema":"Medidas","enun":"El diagrama de cajón resume los puntos de vida de 40 monstruos de la torre.","graf":{"t":"box","series":[{"nom":"","v":[10,25,35,50,80]}],"min":0,"max":90,"paso":10,"xlab":"Puntos de vida"},"preg":"¿Cuál de las siguientes afirmaciones es verdadera?","ops":["Cerca de 20 monstruos tienen entre 25 y 50 puntos de vida.","El promedio de los puntos de vida es 35.","Cerca de 30 monstruos tienen más de 50 puntos de vida.","El rango de los puntos de vida es 25."],"exp":"Entre Q₁ = 25 y Q₃ = 50 está el 50 % central: la mitad de 40, unos 20 monstruos. El 35 es la mediana; el cajón no muestra el promedio, así que no se puede afirmar que sea 35. Sobre Q₃ queda cerca del 25 %, unos 10 monstruos. El rango es 80 − 10 = 70; el 25 es el rango intercuartil."},{"id":"z3j2","zona":3,"tipo":"j","tema":"Medidas","enun":"La tabla muestra el nivel que alcanzó cada uno de 20 aventureros en la torre.","tabla":{"enc":["Nivel","N.° de aventureros"],"filas":[[1,2],[2,6],[3,5],[4,4],[5,3]]},"preg":"¿Cuál es el percentil 80 (P₈₀)?","ops":["4","4,5","3","16"],"exp":"Posición: 80 · 20 / 100 = 16, que es entero: P₈₀ es el promedio de los datos 16.º y 17.º. Acumulando: 2, 8, 13, 17, 20, así que los datos 14.º al 17.º valen 4 y P₈₀ = (4 + 4) / 2 = 4. El 16 es la posición, no el percentil; el 3 es la mediana."},{"id":"z3j3","zona":3,"tipo":"j","tema":"Medidas","enun":"Un mago obtuvo 5,2 ; 6,0 y 4,8 en sus tres primeros duelos.","preg":"¿Qué nota necesita en el cuarto duelo para que su promedio sea exactamente 5,5?","ops":["6,0","5,5","5,7","6,5"],"exp":"Para promediar 5,5 con 4 notas, la suma debe ser 4 · 5,5 = 22. Ya lleva 5,2 + 6,0 + 4,8 = 16, así que le falta 22 − 16 = 6,0. El 5,7 sale de promediar el promedio actual (5,33) con la nota nueva, como si fueran solo dos datos."},{"id":"z4n1","zona":4,"tipo":"n","tema":"Probabilidad","enun":"Un cofre maldito contiene 3 rubíes, 5 esmeraldas y 4 zafiros. Sacas una gema al azar.","preg":"¿Cuál es la probabilidad de que NO sea una esmeralda?","ops":["7/12","5/12","2/3","5/7"],"exp":"Hay 12 gemas y 7 no son esmeraldas (3 + 4), así que P = 7/12. El 5/12 es la probabilidad de que SÍ sea esmeralda; el 2/3 supone que los tres tipos de gema son igual de probables, y no lo son."},{"id":"z4n2","zona":4,"tipo":"n","tema":"Probabilidad","enun":"Una ruleta mágica tiene 5 sectores iguales: 2 de fuego y 3 de hielo. Se gira dos veces.","preg":"¿Cuál es la probabilidad de obtener fuego las dos veces?","ops":["4/25","4/5","2/5","1/4"],"exp":"Los giros son independientes: P = 2/5 · 2/5 = 4/25. El 4/5 suma en vez de multiplicar; el 1/4 supone que FF, FH, HF y HH son igual de probables, pero hay más hielo que fuego."},{"id":"z4n3","zona":4,"tipo":"n","tema":"Probabilidad","enun":"Una bolsa tiene 4 pergaminos de ataque y 2 de defensa. Sacas dos, uno tras otro, sin devolver el primero.","preg":"¿Cuál es la probabilidad de que ambos sean de defensa?","ops":["1/15","1/9","8/15","1/3"],"exp":"Sin reposición: 2/6 · 1/5 = 2/30 = 1/15 (al sacar el primero quedan 5 pergaminos y solo 1 de defensa). El 1/9 = (1/3)·(1/3) sería con reposición; el 8/15 suma las probabilidades en vez de multiplicarlas."},{"id":"z4n4","zona":4,"tipo":"n","tema":"Probabilidad","enun":"La probabilidad de que un hechizo funcione es 0,9. El mago lo lanza dos veces y los intentos son independientes.","preg":"¿Cuál es la probabilidad de que falle al menos una vez?","ops":["0,19","0,2","0,01","0,81"],"exp":"Lo contrario de «falla al menos una vez» es «funciona las dos veces»: 0,9 · 0,9 = 0,81. Entonces P = 1 − 0,81 = 0,19. El 0,2 suma 0,1 + 0,1 y cuenta dos veces el caso en que falla ambas; el 0,01 es la probabilidad de fallar las dos."},{"id":"z4n5","zona":4,"tipo":"n","tema":"Probabilidad","enun":"Los 30 aventureros del gremio se clasifican así:","tabla":{"enc":["","Guerrero","Mago"],"filas":[["Humano",8,7],["Elfo",5,10]]},"preg":"Si se elige uno al azar, ¿cuál es la probabilidad de que sea elfo o mago?","ops":["11/15","1/3","1/2","17/30"],"exp":"Elfos: 15. Magos: 17. Los elfos magos (10) quedan contados dos veces, así que se restan: (15 + 17 − 10) / 30 = 22/30 = 11/15. El 1/3 = 10/30 es «elfo Y mago»; el 1/2 son solo los elfos y el 17/30, solo los magos."},{"id":"z4j1","zona":4,"tipo":"j","tema":"Probabilidad","enun":"Un saco tiene 3 llaves de bronce y 2 de plata. Se sacan dos llaves al azar, sin reposición.","preg":"¿Cuál es la probabilidad de que sean de distinto metal?","ops":["3/5","3/10","12/25","1/2"],"exp":"Hay dos órdenes posibles: bronce-plata (3/5 · 2/4 = 6/20) y plata-bronce (2/5 · 3/4 = 6/20). Sumando: 12/20 = 3/5. El 3/10 considera un solo orden; el 12/25 calcula como si fuera con reposición."},{"id":"z4j2","zona":4,"tipo":"j","tema":"Probabilidad","enun":"En un nido hay 6 huevos de dragón rojos y algunos azules. Al elegir un huevo al azar, la probabilidad de que sea rojo es 2/5.","preg":"¿Cuántos huevos azules hay?","ops":["9","15","4","10"],"exp":"Si 6 huevos son los 2/5 del total, el total es 6 · 5/2 = 15. Entonces hay 15 − 6 = 9 azules. El 15 es el total de huevos, no los azules."},{"id":"z4j3","zona":4,"tipo":"j","tema":"Probabilidad","enun":"Se elige al azar una de 30 runas numeradas del 1 al 30.","preg":"¿Cuál es la probabilidad de que el número sea múltiplo de 3 o múltiplo de 5?","ops":["7/15","8/15","1/15","1/3"],"exp":"Múltiplos de 3: 10. Múltiplos de 5: 6. Los múltiplos de 15 (15 y 30) están en ambos grupos, así que se restan: 10 + 6 − 2 = 14, y 14/30 = 7/15. El 8/15 = 16/30 no resta los repetidos; el 1/15 son solo los múltiplos de 15."},{"id":"f1","zona":5,"tipo":"f","tema":"Medidas","enun":"La tabla muestra el oro que ganó un grupo de mercenarios en cada misión. El promedio de oro por misión es 18.","tabla":{"enc":["Oro por misión","N.° de misiones"],"filas":[[10,4],[20,"a"],[30,2]]},"preg":"¿Cuál es el valor de a?","ops":["4","0,4","6","8"],"exp":"(10·4 + 20·a + 30·2) / (4 + a + 2) = 18, así que 100 + 20a = 108 + 18a y a = 4. Comprobación: 180 / 10 = 18. El 0,4 aparece si se divide solo por 6, olvidando que a también suma al total de misiones."},{"id":"f2","zona":5,"tipo":"f","tema":"Probabilidad","enun":"Un arquero acierta al blanco con probabilidad 3/4 en cada disparo. Dispara 3 flechas y los disparos son independientes.","preg":"¿Cuál es la probabilidad de que acierte al menos una?","ops":["63/64","27/64","1/64","3/4"],"exp":"Lo contrario de «al menos una» es «ninguna»: (1/4)·(1/4)·(1/4) = 1/64. Entonces P = 1 − 1/64 = 63/64. El 27/64 es acertar las tres y el 1/64 es fallar las tres."},{"id":"f3","zona":5,"tipo":"f","tema":"Medidas","enun":"Los diagramas de cajón comparan los puntajes de batalla de dos gremios, A y B.","graf":{"t":"box","series":[{"nom":"A","v":[20,30,40,45,60]},{"nom":"B","v":[15,35,38,50,70]}],"min":10,"max":80,"paso":10,"xlab":"Puntaje"},"preg":"¿Cuál de las siguientes afirmaciones es verdadera?","ops":["En B, cerca del 75 % de los puntajes es 35 o más.","La mediana de A es menor que la mediana de B.","El rango de A es mayor que el rango de B.","En A, el 50 % central está entre 20 y 45."],"exp":"En B, Q₁ = 35: bajo él queda cerca del 25 % y sobre él cerca del 75 %. La mediana de A (40) es mayor que la de B (38). Los rangos son 60 − 20 = 40 (A) y 70 − 15 = 55 (B). El 50 % central de A va de Q₁ = 30 a Q₃ = 45."},{"id":"f4","zona":5,"tipo":"f","tema":"Medidas","enun":"La estatura promedio de 9 caballeros es 175 cm. Se une un décimo caballero y el promedio sube a 176 cm.","preg":"¿Cuánto mide el décimo caballero?","ops":["185 cm","176 cm","177 cm","180 cm"],"exp":"Antes sumaban 9 · 175 = 1575 cm; ahora suman 10 · 176 = 1760 cm. El nuevo mide 1760 − 1575 = 185 cm. Para subir 1 cm el promedio de 10 personas, tiene que aportar 10 cm más que el promedio anterior: 175 + 10 = 185."},{"id":"f5","zona":5,"tipo":"f","tema":"Probabilidad","enun":"El gráfico muestra los monstruos que hay en la última mazmorra.","graf":{"t":"bar","cats":["Esqueleto","Araña","Murciélago","Gólem"],"vals":[12,9,15,4],"ymin":0,"ymax":16,"paso":4,"ylab":"Monstruos","etiq":true},"preg":"Si aparece un monstruo al azar, ¿cuál es la probabilidad de que NO sea murciélago ni gólem?","ops":["21/40","19/40","1/2","3/8"],"exp":"Hay 12 + 9 + 15 + 4 = 40 monstruos. Los que no son murciélago ni gólem son los esqueletos y las arañas: 12 + 9 = 21, así que P = 21/40. El 19/40 es lo contrario (murciélago o gólem); el 1/2 supone que los 4 tipos son igual de probables."}];
+/* Respaldo para navegadores antiguos (Chrome < 86, Safari < 14) */
+if (!Element.prototype.replaceChildren) {
+  Element.prototype.replaceChildren = function () {
+    while (this.firstChild) this.removeChild(this.firstChild);
+    for (let i = 0; i < arguments.length; i++) {
+      const n = arguments[i];
+      this.appendChild(typeof n === "string" ? document.createTextNode(n) : n);
+    }
+  };
+}
+function decodificar(b64) {
+  const bin = atob(b64), bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return JSON.parse(new TextDecoder("utf-8").decode(bytes));
+}
+const BANCO = decodificar("W3siaWQiOiJ6MW4xIiwiem9uYSI6MSwidGlwbyI6Im4iLCJ0ZW1hIjoiVGFibGFzIiwiZW51biI6IkVsIGhlcnJlcm8gZGUgbGEgYWxkZWEgYW5vdMOzIGN1w6FudGFzIGVzcGFkYXMgcmVwYXLDsyBjYWRhIGTDrWEgZHVyYW50ZSAyMCBkw61hcy4iLCJ0YWJsYSI6eyJlbmMiOlsiRXNwYWRhcyByZXBhcmFkYXMiLCJOLsKwIGRlIGTDrWFzIl0sImZpbGFzIjpbWzEsM10sWzIsNV0sWzMsNl0sWzQsNF0sWzUsMl1dfSwicHJlZyI6IsK/RW4gY3XDoW50b3MgZMOtYXMgcmVwYXLDsyBhIGxvIG3DoXMgMyBlc3BhZGFzPyIsIm9wcyI6WyI4IiwiMTIiLCIxNCIsIjYiXSwiZXhwIjoiwqtBIGxvIG3DoXMgM8K7IHNpZ25pZmljYSAxLCAyIG8gMyBlc3BhZGFzOiAzICsgNSArIDYgPSAxNCAobGEgZnJlY3VlbmNpYSBhY3VtdWxhZGEgaGFzdGEgMykuIE9qbzogMTIgY29ycmVzcG9uZGUgYSDCq2FsIG1lbm9zIDPCuyB5IDggYSDCq21lbm9zIGRlIDPCuy4iLCJjIjowfSx7ImlkIjoiejFuMiIsInpvbmEiOjEsInRpcG8iOiJuIiwidGVtYSI6IlRhYmxhcyIsImVudW4iOiJFbiBsYSBwb3NhZGEgc2UgcmVnaXN0csOzIGxhIGJlYmlkYSBxdWUgcGlkacOzIGNhZGEgdW5vIGRlIDQwIGF2ZW50dXJlcm9zLiIsInRhYmxhIjp7ImVuYyI6WyJCZWJpZGEiLCJBdmVudHVyZXJvcyJdLCJmaWxhcyI6W1siSnVnbyBkZSBtYW7DoSIsMTRdLFsiVMOpIGRlIGhpZXJiYXMiLDEwXSxbIkFndWEgZGUgbWFuYW50aWFsIiwxNl1dfSwicHJlZyI6IsK/UXXDqSBwb3JjZW50YWplIGRlIGxvcyBhdmVudHVyZXJvcyBwaWRpw7MgdMOpIGRlIGhpZXJiYXM/Iiwib3BzIjpbIjM1wqAlIiwiMjXCoCUiLCIxMMKgJSIsIjQwwqAlIl0sImV4cCI6IkZyZWN1ZW5jaWEgcmVsYXRpdmEgPSAxMC80MCA9IDAsMjUsIGVzIGRlY2lyLCAyNcKgJS4gRWwgMTDCoCUgY29uZnVuZGUgbGEgZnJlY3VlbmNpYSBhYnNvbHV0YSBjb24gZWwgcG9yY2VudGFqZTsgMzXCoCUgeSA0MMKgJSBzb24gZWwganVnbyAoMTQvNDApIHkgZWwgYWd1YSAoMTYvNDApLiIsImMiOjB9LHsiaWQiOiJ6MW4zIiwiem9uYSI6MSwidGlwbyI6Im4iLCJ0ZW1hIjoiVGFibGFzIiwiZW51biI6IkVuIHVuIHRvcm5lbywgY2FkYSBhcnF1ZXJvIGRpc3BhcsOzIDMgZmxlY2hhcy4gTGEgdGFibGEgbXVlc3RyYSBjdcOhbnRhcyBhY2VydMOzIGNhZGEgdW5vIGRlIGxvcyAyMCBhcnF1ZXJvcy4iLCJ0YWJsYSI6eyJlbmMiOlsiRmxlY2hhcyBhY2VydGFkYXMiLCJOLsKwIGRlIGFycXVlcm9zIl0sImZpbGFzIjpbWzAsNF0sWzEsImsiXSxbMiw3XSxbMywzXSxbIlRvdGFsIiwyMF1dfSwicHJlZyI6IsK/Q3XDoW50b3MgYXJxdWVyb3MgYWNlcnRhcm9uIGV4YWN0YW1lbnRlIDEgZmxlY2hhPyIsIm9wcyI6WyI2IiwiOSIsIjE0IiwiMyJdLCJleHAiOiJMYXMgZnJlY3VlbmNpYXMgc3VtYW4gZWwgdG90YWw6IDQgKyBrICsgNyArIDMgPSAyMCwgYXPDrSBxdWUgayA9IDIwIOKIkiAxNCA9IDYuIEVsIDE0IGVzIGxhIHN1bWEgZGUgbGFzIG90cmFzIGZyZWN1ZW5jaWFzLCBubyBlbCB2YWxvciBkZSBrOyBlbCA5IHNhbGUgZGUgb2x2aWRhciB1bmEgZGUgZWxsYXMgKDIwIOKIkiA0IOKIkiA3KS4iLCJjIjowfSx7ImlkIjoiejFuNCIsInpvbmEiOjEsInRpcG8iOiJuIiwidGVtYSI6IlRhYmxhcyIsImVudW4iOiJMYSBFc2N1ZWxhIGRlIE1hZ2lhIGRlIFZhbGxlIEJydW1hIHRpZW5lIDgwIGVzdHVkaWFudGVzLiBMYSBmcmVjdWVuY2lhIHJlbGF0aXZhIGRlIGxvcyBxdWUgZG9taW5hbiBlbCBmdWVnbyBlcyAwLDE1LiIsInByZWciOiLCv0N1w6FudG9zIGVzdHVkaWFudGVzIGRvbWluYW4gZWwgZnVlZ28/Iiwib3BzIjpbIjUiLCI2OCIsIjE1IiwiMTIiXSwiZXhwIjoiRnJlY3VlbmNpYSBhYnNvbHV0YSA9IGZyZWN1ZW5jaWEgcmVsYXRpdmEgwrcgdG90YWwgPSAwLDE1IMK3IDgwID0gMTIuIEVsIDE1IHNhbGUgZGUgbGVlciAwLDE1IGNvbW8gwqsxNSBlc3R1ZGlhbnRlc8K7OyA2OCBzb24gbG9zIHF1ZSBOTyBkb21pbmFuIGVsIGZ1ZWdvLiIsImMiOjB9LHsiaWQiOiJ6MW41Iiwiem9uYSI6MSwidGlwbyI6Im4iLCJ0ZW1hIjoiVGFibGFzIiwiZW51biI6IlVuIGV4cGxvcmFkb3IgYWJyacOzIDIwIGNvZnJlcyB5IGNvbnTDsyBsYXMgbW9uZWRhcyBkZSBvcm8gZGUgY2FkYSB1bm8uIiwidGFibGEiOnsiZW5jIjpbIk1vbmVkYXMiLCJOLsKwIGRlIGNvZnJlcyJdLCJmaWxhcyI6W1swLDJdLFsxLDVdLFsyLDhdLFszLDNdLFs0LDJdXX0sInByZWciOiLCv1F1w6kgcG9yY2VudGFqZSBkZSBsb3MgY29mcmVzIHRlbsOtYSBtZW5vcyBkZSAzIG1vbmVkYXM/Iiwib3BzIjpbIjkwwqAlIiwiNzXCoCUiLCIyNcKgJSIsIjQwwqAlIl0sImV4cCI6IsKrTWVub3MgZGUgM8K7ID0gMCwgMSBvIDIgbW9uZWRhczogMiArIDUgKyA4ID0gMTUgY29mcmVzLCB5IDE1LzIwID0gNzXCoCUuIEVsIDkwwqAlIHNlcsOtYSDCqzMgbyBtZW5vc8K7ICgxOC8yMCkgeSBlbCA0MMKgJSBzb24gc29sbyBsb3MgY29mcmVzIGNvbiAyIG1vbmVkYXMuIiwiYyI6M30seyJpZCI6InoxajEiLCJ6b25hIjoxLCJ0aXBvIjoiaiIsInRlbWEiOiJUYWJsYXMiLCJlbnVuIjoiRWwgZXNjcmliYSBhbm90w7MgY3XDoW50YXMgbWlzaW9uZXMgY29tcGxldMOzIGNhZGEgdW5vIGRlIDE4IGF2ZW50dXJlcm9zLCBwZXJvIGRlasOzIGxhIHRhYmxhIGEgbWVkaW8gbGxlbmFyLiBGIGVzIGxhIGZyZWN1ZW5jaWEgYWN1bXVsYWRhLiIsInRhYmxhIjp7ImVuYyI6WyJNaXNpb25lcyIsImYiLCJGIl0sImZpbGFzIjpbWzEsMiwyXSxbMiwiYSIsNl0sWzMsNSwxMV0sWzQsImIiLDE3XSxbNSwxLDE4XV19LCJwcmVnIjoiwr9DdcOhbnRvIHZhbGUgYSArIGI/Iiwib3BzIjpbIjEwIiwiMTYiLCI4IiwiMjMiXSwiZXhwIjoiQ2FkYSBGIGVzIGxhIGFudGVyaW9yIG3DoXMgbGEgbnVldmEgZjogYSA9IDYg4oiSIDIgPSA0IHkgYiA9IDE3IOKIkiAxMSA9IDYsIGFzw60gcXVlIGEgKyBiID0gMTAuIEVsIDIzIHNhbGUgZGUgY29waWFyIGxvcyB2YWxvcmVzIGRlIEYgKDYgKyAxNykgeSBlbCAxNiwgZGUgY2FsY3VsYXIgYiA9IDE3IOKIkiA1LiIsImMiOjJ9LHsiaWQiOiJ6MWoyIiwiem9uYSI6MSwidGlwbyI6ImoiLCJ0ZW1hIjoiVGFibGFzIiwiZW51biI6IlNlIHBlc2Fyb24gMzAgZHJhZ29uZXMgYmViw6kgeSBsb3MgcmVzdWx0YWRvcyBzZSBhZ3J1cGFyb24gZW4gaW50ZXJ2YWxvcy4iLCJ0YWJsYSI6eyJlbmMiOlsiTWFzYSAoa2cpIiwiTi7CsCBkZSBkcmFnb25lcyJdLCJmaWxhcyI6W1siWzEwLCAyMFsiLDRdLFsiWzIwLCAzMFsiLDldLFsiWzMwLCA0MFsiLDExXSxbIls0MCwgNTBbIiw2XV19LCJwcmVnIjoiwr9DdcOhbCBkZSBsYXMgc2lndWllbnRlcyBhZmlybWFjaW9uZXMgZXMgdmVyZGFkZXJhPyIsIm9wcyI6WyJMYSBtYXJjYSBkZSBjbGFzZSBkZSBbMjAsIDMwWyBlcyAyMC4iLCJNw6FzIGRlIGxhIG1pdGFkIHBlc2EgbWVub3MgZGUgMzAga2cuIiwiTGEgbWVkaWFuYSBlc3TDoSBlbiBlbCBpbnRlcnZhbG8gWzIwLCAzMFsuIiwiRWwgaW50ZXJ2YWxvIG1vZGFsIGVzIFszMCwgNDBbLiJdLCJleHAiOiJFbCBpbnRlcnZhbG8gY29uIG1heW9yIGZyZWN1ZW5jaWEgKDExKSBlcyBbMzAsIDQwWy4gTGEgbWFyY2EgZGUgY2xhc2UgZGUgWzIwLCAzMFsgZXMgMjUsIGVsIHB1bnRvIG1lZGlvLiBCYWpvIDMwIGtnIGhheSA0ICsgOSA9IDEzIGRyYWdvbmVzLCBtZW5vcyBkZSBsYSBtaXRhZCBkZSAzMC4gTGEgbWVkaWFuYSBlc3TDoSBlbnRyZSBsb3MgZGF0b3MgMTUuwrogeSAxNi7CuiwgeSBhbWJvcyBjYWVuIGVuIFszMCwgNDBbIChsYSBhY3VtdWxhZGEgcGFzYSBkZSAxMyBhIDI0KS4iLCJjIjoyfSx7ImlkIjoiejFqMyIsInpvbmEiOjEsInRpcG8iOiJqIiwidGVtYSI6IlRhYmxhcyIsImVudW4iOiJFbiBlbCByZWdpc3RybyBkZSBsYSBMaWdhIGRlIEV4cGxvcmFkb3JlcywgNyBleHBsb3JhZG9yZXMgY29tcGxldGFyb24gZXhhY3RhbWVudGUgMyBtaXNpb25lcy4gRXNvIGNvcnJlc3BvbmRlIGEgdW5hIGZyZWN1ZW5jaWEgcmVsYXRpdmEgZGUgMCwyLiIsInByZWciOiLCv0N1w6FudG9zIGV4cGxvcmFkb3JlcyBoYXkgZW4gZWwgcmVnaXN0cm8/Iiwib3BzIjpbIjM1IiwiMTQiLCI3MCIsIjEsNCJdLCJleHAiOiJGcmVjdWVuY2lhIHJlbGF0aXZhID0gZiAvIG4sIGFzw60gcXVlIDAsMiA9IDcgLyBuIHkgbiA9IDcgLyAwLDIgPSAzNS4gRWwgMSw0IHNhbGUgZGUgbXVsdGlwbGljYXIgNyDCtyAwLDIgZW4gdmV6IGRlIGRpdmlkaXI7IGVsIDcwIHNhbGUgZGUgZGl2aWRpciBwb3IgMCwxLiIsImMiOjB9LHsiaWQiOiJ6Mm4xIiwiem9uYSI6MiwidGlwbyI6Im4iLCJ0ZW1hIjoiR3LDoWZpY29zIiwiZW51biI6IkxhIGFscXVpbWlzdGEgZGVsIGJvc3F1ZSByZWdpc3Ryw7MgbGFzIHBvY2lvbmVzIHF1ZSB2ZW5kacOzIGNhZGEgZMOtYS4iLCJncmFmIjp7InQiOiJiYXIiLCJjYXRzIjpbIkx1biIsIk1hciIsIk1pw6kiLCJKdWUiLCJWaWUiXSwidmFscyI6WzEyLDgsMTUsMTAsMTVdLCJ5bWluIjowLCJ5bWF4IjoyMCwicGFzbyI6NSwieWxhYiI6IlBvY2lvbmVzIiwiZXRpcSI6dHJ1ZX0sInByZWciOiLCv0N1w6FudGFzIHBvY2lvbmVzIHZlbmRpw7MgZGVzZGUgZWwgbWFydGVzIGhhc3RhIGVsIGp1ZXZlcyAoYW1ib3MgaW5jbHVpZG9zKT8iLCJvcHMiOlsiMzMiLCIxNSIsIjYwIiwiMTgiXSwiZXhwIjoiTWFydGVzICsgbWnDqXJjb2xlcyArIGp1ZXZlcyA9IDggKyAxNSArIDEwID0gMzMuIEVsIDE4IGRlamEgZnVlcmEgZWwgbWnDqXJjb2xlcyB5IGVsIDYwIGVzIGVsIHRvdGFsIGRlIGxhIHNlbWFuYS4iLCJjIjozfSx7ImlkIjoiejJuMiIsInpvbmEiOjIsInRpcG8iOiJuIiwidGVtYSI6Ikdyw6FmaWNvcyIsImVudW4iOiJFbCBncsOhZmljbyBtdWVzdHJhIGVsIGVsZW1lbnRvIHF1ZSBkb21pbmEgY2FkYSB1bm8gZGUgbG9zIDIwMCBoZWNoaWNlcm9zIGRlIGxhIGFjYWRlbWlhLiIsImdyYWYiOnsidCI6InBpZSIsImNhdHMiOlsiRnVlZ28iLCJBZ3VhIiwiVGllcnJhIiwiQWlyZSJdLCJwY3QiOlszNSwyNSwzMCwxMF19LCJwcmVnIjoiwr9DdcOhbnRvcyBoZWNoaWNlcm9zIGRvbWluYW4gdGllcnJhIG8gYWlyZT8iLCJvcHMiOlsiMTIwIiwiNjAiLCI4MCIsIjQwIl0sImV4cCI6IlRpZXJyYSBvIGFpcmUgPSAzMMKgJSArIDEwwqAlID0gNDDCoCUsIHkgZWwgNDDCoCUgZGUgMjAwIGVzIDgwLiBFbCA0MCBlcyBlbCBwb3JjZW50YWplIHkgbm8gbGEgY2FudGlkYWQ7IDYwIGVzIHNvbG8gdGllcnJhIHkgMTIwIGNvcnJlc3BvbmRlIGEgZnVlZ28geSBhZ3VhLiIsImMiOjJ9LHsiaWQiOiJ6Mm4zIiwiem9uYSI6MiwidGlwbyI6Im4iLCJ0ZW1hIjoiR3LDoWZpY29zIiwiZW51biI6IkVsIGhpc3RvZ3JhbWEgbXVlc3RyYSBsYSBlc3RhdHVyYSBkZSA0MCBlbGZvcy4iLCJncmFmIjp7InQiOiJoaXN0IiwibGltcyI6WzE1MCwxNjAsMTcwLDE4MCwxOTBdLCJmIjpbNiwxMCwxNiw4XSwieW1heCI6MjAsInBhc28iOjUsInhsYWIiOiJFc3RhdHVyYSAoY20pIiwieWxhYiI6Ik4uwrAgZGUgZWxmb3MifSwicHJlZyI6IsK/Q3XDoW50b3MgZWxmb3MgbWlkZW4gMTcwIGNtIG8gbcOhcz8iLCJvcHMiOlsiOCIsIjE2IiwiMzIiLCIyNCJdLCJleHAiOiJEZXNkZSAxNzAgY20gaGFjaWEgYXJyaWJhIGVzdMOhbiBsb3MgaW50ZXJ2YWxvcyBbMTcwLCAxODBbIHkgWzE4MCwgMTkwWzogMTYgKyA4ID0gMjQuIEVsIDE2IGNvbnNpZGVyYSB1biBzb2xvIGludGVydmFsbyB5IGVsIDMyIGN1ZW50YSBsb3MgcXVlIG1pZGVuIG1lbm9zIGRlIDE4MCBjbS4iLCJjIjowfSx7ImlkIjoiejJuNCIsInpvbmEiOjIsInRpcG8iOiJuIiwidGVtYSI6Ikdyw6FmaWNvcyIsImVudW4iOiJFbCB0ZXNvcmVybyBkZWwgcmVpbm8gYW5vdMOzIGVsIG9ybyBndWFyZGFkbyBlbiBsYSBiw7N2ZWRhIGFsIGZpbmFsIGRlIGNhZGEgbWVzIChlbiBtaWxlcyBkZSBtb25lZGFzKS4iLCJncmFmIjp7InQiOiJsaW5lIiwiY2F0cyI6WyJFbmUiLCJGZWIiLCJNYXIiLCJBYnIiLCJNYXkiLCJKdW4iXSwidmFscyI6WzIwLDI2LDIzLDMwLDMxLDI1XSwieW1pbiI6MCwieW1heCI6MzUsInBhc28iOjUsInlsYWIiOiJNaWxlcyBkZSBtb25lZGFzIiwiZXRpcSI6dHJ1ZX0sInByZWciOiLCv0VudHJlIHF1w6kgbWVzZXMgY29uc2VjdXRpdm9zIGF1bWVudMOzIG3DoXMgZWwgb3JvPyIsIm9wcyI6WyJEZSBhYnJpbCBhIG1heW8iLCJEZSBlbmVybyBhIGZlYnJlcm8iLCJEZSBtYXlvIGEganVuaW8iLCJEZSBtYXJ6byBhIGFicmlsIl0sImV4cCI6IkxvcyBhdW1lbnRvcyBzb246IGVuZXJv4oaSZmVicmVybyArNiwgbWFyem/ihpJhYnJpbCArNyB5IGFicmls4oaSbWF5byArMS4gRWwgbWF5b3IgZXMgZGUgbWFyem8gYSBhYnJpbCAoKzcpLiBEZSBtYXlvIGEganVuaW8gaGF5IHVuIGNhbWJpbyBncmFuZGUsIHBlcm8gZXMgdW5hIGRpc21pbnVjacOzbiAo4oiSNikuIiwiYyI6MX0seyJpZCI6InoybjUiLCJ6b25hIjoyLCJ0aXBvIjoibiIsInRlbWEiOiJHcsOhZmljb3MiLCJlbnVuIjoiRWwgcGljdG9ncmFtYSBtdWVzdHJhIGxvcyBlc2N1ZG9zIGZvcmphZG9zIHBvciB0cmVzIGhlcnJlcsOtYXMuIiwiZ3JhZiI6eyJ0IjoicGljdG8iLCJpY29ubyI6IvCfm6HvuI8iLCJ2YWxvciI6NCwidW5pZGFkIjoiZXNjdWRvcyIsImZpbGFzIjpbWyJIZXJyZXLDrWEgTm9ydGUiLDNdLFsiSGVycmVyw61hIFN1ciIsNV0sWyJIZXJyZXLDrWEgRXN0ZSIsMi41XV19LCJwcmVnIjoiwr9DdcOhbnRvcyBlc2N1ZG9zIG3DoXMgZm9yasOzIGxhIEhlcnJlcsOtYSBTdXIgcXVlIGxhIEhlcnJlcsOtYSBFc3RlPyIsIm9wcyI6WyIzMCIsIjEwIiwiMiw1IiwiMTIiXSwiZXhwIjoiU3VyOiA1IMK3IDQgPSAyMCBlc2N1ZG9zLiBFc3RlOiAyLDUgwrcgNCA9IDEwIGVzY3Vkb3MuIERpZmVyZW5jaWE6IDIwIOKIkiAxMCA9IDEwLiBFbCAyLDUgZXMgbGEgZGlmZXJlbmNpYSBkZSBzw61tYm9sb3MsIG5vIGRlIGVzY3Vkb3M7IGVsIDEyIGFwYXJlY2Ugc2kgc2UgaWdub3JhIGVsIG1lZGlvIHPDrW1ib2xvLiIsImMiOjB9LHsiaWQiOiJ6MmoxIiwiem9uYSI6MiwidGlwbyI6ImoiLCJ0ZW1hIjoiR3LDoWZpY29zIiwiZW51biI6IlJlc3VsdGFkb3MgZGUgbGEgdm90YWNpw7NuIHBhcmEgZWxlZ2lyIGFsIGNhcGl0w6FuIGRlIGxhIEd1YXJkaWEgZGVsIFB1ZXJ0by4gVW4gZ3VhcmRpYSBtaXJhIGVsIGdyw6FmaWNvIHkgZGljZTogwqtDaXJvIHNhY8OzIGNvbW8gZWwgdHJpcGxlIGRlIHZvdG9zIHF1ZSBBcmlhwrsuIiwiZ3JhZiI6eyJ0IjoiYmFyIiwiY2F0cyI6WyJBcmlhIiwiQnJ1bm8iLCJDaXJvIl0sInZhbHMiOls5NCw5OCwxMDJdLCJ5bWluIjo5MCwieW1heCI6MTA0LCJwYXNvIjoyLCJ5bGFiIjoiVm90b3MiLCJldGlxIjp0cnVlfSwicHJlZyI6IsK/UG9yIHF1w6kgc3UgYWZpcm1hY2nDs24gZXMgaW5jb3JyZWN0YT8iLCJvcHMiOlsiRWwgZWplIHBhcnRlIGVuIDkwOiBsYSBkaWZlcmVuY2lhIHJlYWwgZXMgZGUgc29sbyA4IHZvdG9zLiIsIkxhcyBiYXJyYXMgZGViZXLDrWFuIGVzdGFyIG9yZGVuYWRhcyBkZSBtYXlvciBhIG1lbm9yLiIsIkNpcm8gb2J0dXZvIGVsIGRvYmxlIGRlIHZvdG9zIHF1ZSBBcmlhIHkgbm8gZWwgdHJpcGxlLiIsIkNvbiB2b3RvcyBzZSBkZWJlIHVzYXIgdW4gZ3LDoWZpY28gY2lyY3VsYXIgeSBubyBkZSBiYXJyYXMuIl0sImV4cCI6IkxhcyBiYXJyYXMgcGFydGVuIGVuIDkwIHkgbm8gZW4gMDsgcG9yIGVzbyBsYSBkZSBDaXJvICgxMDIpIHNlIHZlIHRyZXMgdmVjZXMgbcOhcyBhbHRhIHF1ZSBsYSBkZSBBcmlhICg5NCkuIEVuIHJlYWxpZGFkIGxhIGRpZmVyZW5jaWEgZXMgZGUgc29sbyA4IHZvdG9zOiBDaXJvIHRpZW5lIGFwZW5hcyB1biA4LDXCoCUgbcOhcyBxdWUgQXJpYS4iLCJjIjozfSx7ImlkIjoiejJqMiIsInpvbmEiOjIsInRpcG8iOiJqIiwidGVtYSI6Ikdyw6FmaWNvcyIsImVudW4iOiJFbiBlbCBncsOhZmljbyBjaXJjdWxhciBkZWwgZWrDqXJjaXRvIHJlYWwsIGVsIHNlY3RvciBkZSBsb3MgYXJxdWVyb3MgbWlkZSA3MsKwLiBFbCBlasOpcmNpdG8gdGllbmUgMjUwIHNvbGRhZG9zLiIsInByZWciOiLCv0N1w6FudG9zIHNvbGRhZG9zIHNvbiBhcnF1ZXJvcz8iLCJvcHMiOlsiNTAiLCI3MiIsIjE4MCIsIjIwIl0sImV4cCI6IjcywrAgZGUgMzYwwrAgZXMgNzIvMzYwID0gMCwyLCBvIHNlYSBlbCAyMMKgJSBkZWwgY8OtcmN1bG8sIHkgZWwgMjDCoCUgZGUgMjUwIGVzIDUwLiBFbCAxODAgc2FsZSBkZSB1c2FyIDcyIGNvbW8gc2kgZnVlcmEgdW4gcG9yY2VudGFqZSAoNzLCoCUgZGUgMjUwKTsgZWwgMjAgZXMgZWwgcG9yY2VudGFqZSwgbm8gbGEgY2FudGlkYWQuIiwiYyI6MH0seyJpZCI6InoyajMiLCJ6b25hIjoyLCJ0aXBvIjoiaiIsInRlbWEiOiJHcsOhZmljb3MiLCJlbnVuIjoiRWwgaGlzdG9ncmFtYSBtdWVzdHJhIGN1w6FudG8gdGFyZGFyb24gNTAgY2FiYWxsZXJvcyBlbiBjcnV6YXIgZWwgbGFiZXJpbnRvLiIsImdyYWYiOnsidCI6Imhpc3QiLCJsaW1zIjpbMCwxMCwyMCwzMCw0MF0sImYiOls1LDE1LDIwLDEwXSwieW1heCI6MjUsInBhc28iOjUsInhsYWIiOiJUaWVtcG8gKG1pbikiLCJ5bGFiIjoiTi7CsCBkZSBjYWJhbGxlcm9zIn0sInByZWciOiLCv0N1w6FsIGRlIGxhcyBzaWd1aWVudGVzIGFmaXJtYWNpb25lcyBlcyB2ZXJkYWRlcmE/Iiwib3BzIjpbIk3DoXMgZGUgMTAgY2FiYWxsZXJvcyB0YXJkYXJvbiAzMCBtaW4gbyBtw6FzLiIsIkVsIDQwwqAlIHRhcmTDsyBhbCBtZW5vcyAyMCBtaW4geSBtZW5vcyBkZSAzMCBtaW4uIiwiTGEgbWl0YWQgZGUgbG9zIGNhYmFsbGVyb3MgdGFyZMOzIG1lbm9zIGRlIDIwIG1pbi4iLCJFbCBpbnRlcnZhbG8gWzEwLCAyMFsgZXMgZWwgZGUgbWF5b3IgZnJlY3VlbmNpYS4iXSwiZXhwIjoiRW4gWzIwLCAzMFsgaGF5IDIwIGNhYmFsbGVyb3MsIHkgMjAvNTAgPSA0MMKgJS4gQmFqbyAyMCBtaW51dG9zIGhheSA1ICsgMTUgPSAyMCwgcXVlIG5vIGVzIGxhIG1pdGFkIGRlIDUwLiAzMCBtaW51dG9zIG8gbcOhcyB0YXJkYXJvbiBzb2xvIGxvcyAxMCBkZWwgaW50ZXJ2YWxvIFszMCwgNDBbLCBubyBtw6FzIGRlIDEwLiBFbCBpbnRlcnZhbG8gZGUgbWF5b3IgZnJlY3VlbmNpYSBlcyBbMjAsIDMwWy4iLCJjIjoyfSx7ImlkIjoiejNuMSIsInpvbmEiOjMsInRpcG8iOiJuIiwidGVtYSI6Ik1lZGlkYXMiLCJlbnVuIjoiTGEgdGFibGEgbXVlc3RyYSBjdcOhbnRvcyBoZWNoaXpvcyBsYW56w7MgY2FkYSB1bm8gZGUgMTAgbWFnb3MgZHVyYW50ZSB1biBkdWVsby4iLCJ0YWJsYSI6eyJlbmMiOlsiSGVjaGl6b3MiLCJOLsKwIGRlIG1hZ29zIl0sImZpbGFzIjpbWzEsMl0sWzIsM10sWzMsNF0sWzQsMV1dfSwicHJlZyI6IsK/Q3XDoWwgZXMgZWwgcHJvbWVkaW8gZGUgaGVjaGl6b3MgcG9yIG1hZ28/Iiwib3BzIjpbIjIsNSIsIjIsNCIsIjYiLCIzIl0sImV4cCI6IlByb21lZGlvID0gKDHCtzIgKyAywrczICsgM8K3NCArIDTCtzEpIC8gMTAgPSAyNCAvIDEwID0gMiw0LiBFbCAyLDUgcHJvbWVkaWEgc29sbyBsb3MgdmFsb3JlcyAxLCAyLCAzIHkgNCBzaW4gbGFzIGZyZWN1ZW5jaWFzOyBlbCA2IGRpdmlkZSBwb3IgNCBlbiB2ZXogZGUgcG9yIDEwOyBlbCAzIGVzIGxhIG1vZGEuIiwiYyI6MX0seyJpZCI6InozbjIiLCJ6b25hIjozLCJ0aXBvIjoibiIsInRlbWEiOiJNZWRpZGFzIiwiZW51biI6IkxhIHRhYmxhIG11ZXN0cmEgY3XDoW50b3MgZ29ibGlucyBkZXJyb3TDsyBjYWRhIHVubyBkZSAxNSBndWVycmVyb3MuIiwidGFibGEiOnsiZW5jIjpbIkdvYmxpbnMiLCJOLsKwIGRlIGd1ZXJyZXJvcyJdLCJmaWxhcyI6W1swLDNdLFsxLDRdLFsyLDJdLFszLDVdLFs0LDFdXX0sInByZWciOiLCv0N1w6FsIGVzIGxhIG1lZGlhbmE/Iiwib3BzIjpbIjIiLCIzIiwiMSIsIjEsOCJdLCJleHAiOiJDb24gMTUgZGF0b3MsIGxhIG1lZGlhbmEgZXMgZWwgZGF0byA4LsK6LiBBY3VtdWxhbmRvOiAzIChoYXN0YSAwKSwgNyAoaGFzdGEgMSksIDkgKGhhc3RhIDIpLiBFbCBkYXRvIDguwrogdmFsZSAyLiBFbCAzIGVzIGxhIG1vZGEgeSBlbCAxLDggZXMgZWwgcHJvbWVkaW8uIiwiYyI6MX0seyJpZCI6InozbjMiLCJ6b25hIjozLCJ0aXBvIjoibiIsInRlbWEiOiJNZWRpZGFzIiwiZW51biI6Ik5vdGFzIGRlIHVuIGFwcmVuZGl6IGRlIG1hZ28gZW4gc2VpcyBwcnVlYmFzOiA2LDUgOyA1LDAgOyAzLDAgOyA2LDUgOyA0LDAgOyA1LDUiLCJwcmVnIjoiwr9DdcOhbCBlcyBsYSBtZWRpYW5hIGRlIHN1cyBub3Rhcz8iLCJvcHMiOlsiNiw1IiwiNSwyNSIsIjQsNzUiLCI1LDAiXSwiZXhwIjoiUHJpbWVybyBzZSBvcmRlbmFuOiAzLDAgOyA0LDAgOyA1LDAgOyA1LDUgOyA2LDUgOyA2LDUuIENvbiA2IGRhdG9zLCBsYSBtZWRpYW5hIGVzIGVsIHByb21lZGlvIGRlIGxvcyBkb3MgY2VudHJhbGVzOiAoNSwwICsgNSw1KSAvIDIgPSA1LDI1LiBFbCA0LDc1IHNhbGUgZGUgcHJvbWVkaWFyIGxvcyBjZW50cmFsZXMgc2luIG9yZGVuYXIgKDMsMCB5IDYsNSk7IGVsIDYsNSBlcyBsYSBtb2RhLiIsImMiOjN9LHsiaWQiOiJ6M240Iiwiem9uYSI6MywidGlwbyI6Im4iLCJ0ZW1hIjoiTWVkaWRhcyIsImVudW4iOiJDdWF0cm8gY29mcmVzIHRpZW5lbiwgZW4gcHJvbWVkaW8sIDMwIG1vbmVkYXMuIEx1ZWdvIHNlIGVuY3VlbnRyYSB1biBxdWludG8gY29mcmUgY29uIDU1IG1vbmVkYXMuIiwicHJlZyI6IsK/Q3XDoWwgZXMgZWwgbnVldm8gcHJvbWVkaW8gZGUgbW9uZWRhcyBwb3IgY29mcmU/Iiwib3BzIjpbIjM1IiwiNDMsNzUiLCI0Miw1IiwiNDEiXSwiZXhwIjoiTG9zIDQgY29mcmVzIHN1bWFuIDQgwrcgMzAgPSAxMjAgbW9uZWRhcy4gQ29uIGVsIHF1aW50bzogMTIwICsgNTUgPSAxNzUsIHkgMTc1IC8gNSA9IDM1LiBFbCA0Miw1IHByb21lZGlhIDMwIHkgNTUgY29tbyBzaSBmdWVyYW4gc29sbyBkb3MgZGF0b3M7IGVsIDQzLDc1IGRpdmlkZSBwb3IgNCBlbiB2ZXogZGUgcG9yIDUuIiwiYyI6M30seyJpZCI6InozbjUiLCJ6b25hIjozLCJ0aXBvIjoibiIsInRlbWEiOiJNZWRpZGFzIiwiZW51biI6IkRpc3RhbmNpYSAoZW4gbWV0cm9zKSBhIGxhIHF1ZSBsYW56YXJvbiBzdXMgaGFjaGFzIDEyIGVuYW5vcywgeWEgb3JkZW5hZGFzOiA4IDsgOSA7IDExIDsgMTIgOyAxMiA7IDE0IDsgMTUgOyAxNSA7IDE2IDsgMTggOyAyMCA7IDIzLiBVc2EgZWwgbcOpdG9kbyBkZWwgY3Vyc286IHBvc2ljacOzbiA9IGsgwrcgbiAvIDEwMDsgc2kgZXMgZW50ZXJvLCBzZSBwcm9tZWRpYSBlc2UgZGF0byBjb24gZWwgc2lndWllbnRlOyBzaSBubywgc2UgcmVkb25kZWEgaGFjaWEgYXJyaWJhLiIsInByZWciOiLCv0N1w6FsIGVzIGVsIHBlcmNlbnRpbCAyNSAoUOKCguKChSk/Iiwib3BzIjpbIjExLDUiLCIxNCw1IiwiMTIiLCIxMSJdLCJleHAiOiJDb24gZWwgbcOpdG9kbyBkZWwgY3Vyc28sIGxhIHBvc2ljacOzbiBlcyAyNSDCtyAxMiAvIDEwMCA9IDMuIENvbW8gZXMgZW50ZXJvLCBQ4oKC4oKFIGVzIGVsIHByb21lZGlvIGRlIGxvcyBkYXRvcyAzLsK6IHkgNC7CujogKDExICsgMTIpIC8gMiA9IDExLDUuIFRvbWFyIHNvbG8gZWwgMy7CuiAoMTEpIG8gc29sbyBlbCA0LsK6ICgxMikgZXMgZWwgZXJyb3IgdMOtcGljbzsgZWwgMTQsNSBlcyBsYSBtZWRpYW5hLiIsImMiOjB9LHsiaWQiOiJ6M2oxIiwiem9uYSI6MywidGlwbyI6ImoiLCJ0ZW1hIjoiTWVkaWRhcyIsImVudW4iOiJFbCBkaWFncmFtYSBkZSBjYWrDs24gcmVzdW1lIGxvcyBwdW50b3MgZGUgdmlkYSBkZSA0MCBtb25zdHJ1b3MgZGUgbGFzIGNhdGFjdW1iYXMuIiwiZ3JhZiI6eyJ0IjoiYm94Iiwic2VyaWVzIjpbeyJub20iOiIiLCJ2IjpbMTAsMjUsMzUsNTAsODBdfV0sIm1pbiI6MCwibWF4Ijo5MCwicGFzbyI6MTAsInhsYWIiOiJQdW50b3MgZGUgdmlkYSJ9LCJwcmVnIjoiwr9DdcOhbCBkZSBsYXMgc2lndWllbnRlcyBhZmlybWFjaW9uZXMgZXMgdmVyZGFkZXJhPyIsIm9wcyI6WyJFbCByYW5nbyBkZSBsb3MgcHVudG9zIGRlIHZpZGEgZXMgMjUuIiwiQ2VyY2EgZGUgMzAgbW9uc3RydW9zIHRpZW5lbiBtw6FzIGRlIDUwIHB1bnRvcyBkZSB2aWRhLiIsIkxhIG1lZGlhbmEgZGUgbG9zIHB1bnRvcyBkZSB2aWRhIGVzIDUwLiIsIkNlcmNhIGRlIDIwIG1vbnN0cnVvcyB0aWVuZW4gZW50cmUgMjUgeSA1MCBwdW50b3MgZGUgdmlkYS4iXSwiZXhwIjoiRW50cmUgUeKCgSA9IDI1IHkgUeKCgyA9IDUwIGVzdMOhIGVsIDUwwqAlIGNlbnRyYWw6IGxhIG1pdGFkIGRlIDQwLCB1bm9zIDIwIG1vbnN0cnVvcy4gTGEgbWVkaWFuYSBlcyAzNSAobGEgbMOtbmVhIGRlbnRybyBkZWwgY2Fqw7NuKTsgZWwgNTAgZXMgUeKCgy4gU29icmUgUeKCgyBxdWVkYSBjZXJjYSBkZWwgMjXCoCUsIHVub3MgMTAgbW9uc3RydW9zLiBFbCByYW5nbyBlcyA4MCDiiJIgMTAgPSA3MDsgZWwgMjUgZXMgZWwgcmFuZ28gaW50ZXJjdWFydGlsLiIsImMiOjN9LHsiaWQiOiJ6M2oyIiwiem9uYSI6MywidGlwbyI6ImoiLCJ0ZW1hIjoiTWVkaWRhcyIsImVudW4iOiJMYSB0YWJsYSBtdWVzdHJhIGVsIG5pdmVsIHF1ZSBhbGNhbnrDsyBjYWRhIHVubyBkZSAyMCBhdmVudHVyZXJvcyBlbiBlbCBMYWJlcmludG8gZGUgQ3Jpc3RhbC4gVXNhIGVsIG3DqXRvZG8gZGVsIGN1cnNvOiBwb3NpY2nDs24gPSBrIMK3IG4gLyAxMDA7IHNpIGVzIGVudGVybywgc2UgcHJvbWVkaWEgZXNlIGRhdG8gY29uIGVsIHNpZ3VpZW50ZTsgc2kgbm8sIHNlIHJlZG9uZGVhIGhhY2lhIGFycmliYS4iLCJ0YWJsYSI6eyJlbmMiOlsiTml2ZWwiLCJOLsKwIGRlIGF2ZW50dXJlcm9zIl0sImZpbGFzIjpbWzEsMl0sWzIsNl0sWzMsNV0sWzQsNF0sWzUsM11dfSwicHJlZyI6IsK/Q3XDoWwgZXMgZWwgcGVyY2VudGlsIDgwIChQ4oKI4oKAKT8iLCJvcHMiOlsiNCIsIjE2IiwiNCw1IiwiMyJdLCJleHAiOiJQb3NpY2nDs246IDgwIMK3IDIwIC8gMTAwID0gMTYsIHF1ZSBlcyBlbnRlcm86IFDigojigoAgZXMgZWwgcHJvbWVkaW8gZGUgbG9zIGRhdG9zIDE2LsK6IHkgMTcuwrouIEFjdW11bGFuZG86IDIsIDgsIDEzLCAxNywgMjAsIGFzw60gcXVlIGxvcyBkYXRvcyAxNC7CuiBhbCAxNy7CuiB2YWxlbiA0IHkgUOKCiOKCgCA9ICg0ICsgNCkgLyAyID0gNC4gRWwgMTYgZXMgbGEgcG9zaWNpw7NuLCBubyBlbCBwZXJjZW50aWw7IGVsIDMgZXMgbGEgbWVkaWFuYS4iLCJjIjoxfSx7ImlkIjoiejNqMyIsInpvbmEiOjMsInRpcG8iOiJqIiwidGVtYSI6Ik1lZGlkYXMiLCJlbnVuIjoiVW4gbWFnbyBvYnR1dm8gNSwyIDsgNiwwIHkgNCw4IGVuIHN1cyB0cmVzIHByaW1lcm9zIGR1ZWxvcy4iLCJwcmVnIjoiwr9RdcOpIG5vdGEgbmVjZXNpdGEgZW4gZWwgY3VhcnRvIGR1ZWxvIHBhcmEgcXVlIHN1IHByb21lZGlvIHNlYSBleGFjdGFtZW50ZSA1LDU/Iiwib3BzIjpbIjYsMCIsIjUsNSIsIjUsNyIsIjYsNSJdLCJleHAiOiJQYXJhIHByb21lZGlhciA1LDUgY29uIDQgbm90YXMsIGxhIHN1bWEgZGViZSBzZXIgNCDCtyA1LDUgPSAyMi4gWWEgbGxldmEgNSwyICsgNiwwICsgNCw4ID0gMTYsIGFzw60gcXVlIGxlIGZhbHRhIDIyIOKIkiAxNiA9IDYsMC4gRWwgNSw3IHNhbGUgZGUgcHJvbWVkaWFyIGVsIHByb21lZGlvIGFjdHVhbCAoNSwzMykgY29uIGxhIG5vdGEgbnVldmEsIGNvbW8gc2kgZnVlcmFuIHNvbG8gZG9zIGRhdG9zLiIsImMiOjJ9LHsiaWQiOiJ6NG4xIiwiem9uYSI6NCwidGlwbyI6Im4iLCJ0ZW1hIjoiUHJvYmFiaWxpZGFkIiwiZW51biI6IlVuIGNvZnJlIG1hbGRpdG8gY29udGllbmUgMyBydWLDrWVzLCA1IGVzbWVyYWxkYXMgeSA0IHphZmlyb3MuIFNhY2FzIHVuYSBnZW1hIGFsIGF6YXIuIiwicHJlZyI6IsK/Q3XDoWwgZXMgbGEgcHJvYmFiaWxpZGFkIGRlIHF1ZSBOTyBzZWEgdW5hIGVzbWVyYWxkYT8iLCJvcHMiOlsiNy8xMiIsIjUvMTIiLCI1LzciLCIyLzMiXSwiZXhwIjoiSGF5IDEyIGdlbWFzIHkgNyBubyBzb24gZXNtZXJhbGRhcyAoMyArIDQpLCBhc8OtIHF1ZSBQID0gNy8xMi4gRWwgNS8xMiBlcyBsYSBwcm9iYWJpbGlkYWQgZGUgcXVlIFPDjSBzZWEgZXNtZXJhbGRhOyBlbCAyLzMgc3Vwb25lIHF1ZSBsb3MgdHJlcyB0aXBvcyBkZSBnZW1hIHNvbiBpZ3VhbCBkZSBwcm9iYWJsZXMsIHkgbm8gbG8gc29uLiIsImMiOjF9LHsiaWQiOiJ6NG4yIiwiem9uYSI6NCwidGlwbyI6Im4iLCJ0ZW1hIjoiUHJvYmFiaWxpZGFkIiwiZW51biI6IlVuYSBydWxldGEgbcOhZ2ljYSB0aWVuZSA1IHNlY3RvcmVzIGlndWFsZXM6IDIgZGUgZnVlZ28geSAzIGRlIGhpZWxvLiBTZSBnaXJhIGRvcyB2ZWNlcy4iLCJwcmVnIjoiwr9DdcOhbCBlcyBsYSBwcm9iYWJpbGlkYWQgZGUgb2J0ZW5lciBmdWVnbyBsYXMgZG9zIHZlY2VzPyIsIm9wcyI6WyI0LzUiLCIxLzQiLCI0LzI1IiwiMi81Il0sImV4cCI6IkxvcyBnaXJvcyBzb24gaW5kZXBlbmRpZW50ZXM6IFAgPSAyLzUgwrcgMi81ID0gNC8yNS4gRWwgNC81IHN1bWEgZW4gdmV6IGRlIG11bHRpcGxpY2FyOyBlbCAxLzQgc3Vwb25lIHF1ZSBGRiwgRkgsIEhGIHkgSEggc29uIGlndWFsIGRlIHByb2JhYmxlcywgcGVybyBoYXkgbcOhcyBoaWVsbyBxdWUgZnVlZ28uIiwiYyI6MH0seyJpZCI6Ino0bjMiLCJ6b25hIjo0LCJ0aXBvIjoibiIsInRlbWEiOiJQcm9iYWJpbGlkYWQiLCJlbnVuIjoiVW5hIGJvbHNhIHRpZW5lIDQgcGVyZ2FtaW5vcyBkZSBhdGFxdWUgeSAyIGRlIGRlZmVuc2EuIFNhY2FzIGRvcywgdW5vIHRyYXMgb3Rybywgc2luIGRldm9sdmVyIGVsIHByaW1lcm8uIiwicHJlZyI6IsK/Q3XDoWwgZXMgbGEgcHJvYmFiaWxpZGFkIGRlIHF1ZSBhbWJvcyBzZWFuIGRlIGRlZmVuc2E/Iiwib3BzIjpbIjgvMTUiLCIxLzkiLCIxLzE1IiwiMS8zIl0sImV4cCI6IlNpbiByZXBvc2ljacOzbjogMi82IMK3IDEvNSA9IDIvMzAgPSAxLzE1IChhbCBzYWNhciBlbCBwcmltZXJvIHF1ZWRhbiA1IHBlcmdhbWlub3MgeSBzb2xvIDEgZGUgZGVmZW5zYSkuIEVsIDEvOSA9ICgxLzMpwrcoMS8zKSBzZXLDrWEgY29uIHJlcG9zaWNpw7NuOyBlbCA4LzE1IHN1bWEgbGFzIHByb2JhYmlsaWRhZGVzIGVuIHZleiBkZSBtdWx0aXBsaWNhcmxhcy4iLCJjIjoxfSx7ImlkIjoiejRuNCIsInpvbmEiOjQsInRpcG8iOiJuIiwidGVtYSI6IlByb2JhYmlsaWRhZCIsImVudW4iOiJMYSBwcm9iYWJpbGlkYWQgZGUgcXVlIHVuIGhlY2hpem8gZnVuY2lvbmUgZXMgMCw5LiBFbCBtYWdvIGxvIGxhbnphIGRvcyB2ZWNlcyB5IGxvcyBpbnRlbnRvcyBzb24gaW5kZXBlbmRpZW50ZXMuIiwicHJlZyI6IsK/Q3XDoWwgZXMgbGEgcHJvYmFiaWxpZGFkIGRlIHF1ZSBmYWxsZSBhbCBtZW5vcyB1bmEgdmV6PyIsIm9wcyI6WyIwLDE5IiwiMCw4MSIsIjAsMiIsIjAsMDEiXSwiZXhwIjoiTG8gY29udHJhcmlvIGRlIMKrZmFsbGEgYWwgbWVub3MgdW5hIHZlesK7IGVzIMKrZnVuY2lvbmEgbGFzIGRvcyB2ZWNlc8K7OiAwLDkgwrcgMCw5ID0gMCw4MS4gRW50b25jZXMgUCA9IDEg4oiSIDAsODEgPSAwLDE5LiBFbCAwLDIgc3VtYSAwLDEgKyAwLDEgeSBjdWVudGEgZG9zIHZlY2VzIGVsIGNhc28gZW4gcXVlIGZhbGxhIGFtYmFzOyBlbCAwLDAxIGVzIGxhIHByb2JhYmlsaWRhZCBkZSBmYWxsYXIgbGFzIGRvcy4iLCJjIjowfSx7ImlkIjoiejRuNSIsInpvbmEiOjQsInRpcG8iOiJuIiwidGVtYSI6IlByb2JhYmlsaWRhZCIsImVudW4iOiJMb3MgMzAgaW50ZWdyYW50ZXMgZGUgbGEgQ29tcGHDscOtYSBkZWwgR3JpZm8gc2UgY2xhc2lmaWNhbiBhc8OtOiIsInRhYmxhIjp7ImVuYyI6WyIiLCJHdWVycmVybyIsIk1hZ28iXSwiZmlsYXMiOltbIkh1bWFubyIsOCw3XSxbIkVsZm8iLDUsMTBdXX0sInByZWciOiJTaSBzZSBlbGlnZSB1bm8gYWwgYXphciwgwr9jdcOhbCBlcyBsYSBwcm9iYWJpbGlkYWQgZGUgcXVlIHNlYSBlbGZvIG8gbWFnbz8iLCJvcHMiOlsiMTEvMTUiLCIxLzIiLCIxNy8zMCIsIjEvMyJdLCJleHAiOiJFbGZvczogMTUuIE1hZ29zOiAxNy4gTG9zIGVsZm9zIG1hZ29zICgxMCkgcXVlZGFuIGNvbnRhZG9zIGRvcyB2ZWNlcywgYXPDrSBxdWUgc2UgcmVzdGFuOiAoMTUgKyAxNyDiiJIgMTApIC8gMzAgPSAyMi8zMCA9IDExLzE1LiBFbCAxLzMgPSAxMC8zMCBlcyDCq2VsZm8gWSBtYWdvwrs7IGVsIDEvMiBzb24gc29sbyBsb3MgZWxmb3MgeSBlbCAxNy8zMCwgc29sbyBsb3MgbWFnb3MuIiwiYyI6MX0seyJpZCI6Ino0ajEiLCJ6b25hIjo0LCJ0aXBvIjoiaiIsInRlbWEiOiJQcm9iYWJpbGlkYWQiLCJlbnVuIjoiVW4gc2FjbyB0aWVuZSAzIGxsYXZlcyBkZSBicm9uY2UgeSAyIGRlIHBsYXRhLiBTZSBzYWNhbiBkb3MgbGxhdmVzIGFsIGF6YXIsIHNpbiByZXBvc2ljacOzbi4iLCJwcmVnIjoiwr9DdcOhbCBlcyBsYSBwcm9iYWJpbGlkYWQgZGUgcXVlIHNlYW4gZGUgZGlzdGludG8gbWV0YWw/Iiwib3BzIjpbIjMvNSIsIjEvMiIsIjEyLzI1IiwiMy8xMCJdLCJleHAiOiJIYXkgZG9zIMOzcmRlbmVzIHBvc2libGVzOiBicm9uY2UtcGxhdGEgKDMvNSDCtyAyLzQgPSA2LzIwKSB5IHBsYXRhLWJyb25jZSAoMi81IMK3IDMvNCA9IDYvMjApLiBTdW1hbmRvOiAxMi8yMCA9IDMvNS4gRWwgMy8xMCBjb25zaWRlcmEgdW4gc29sbyBvcmRlbjsgZWwgMTIvMjUgY2FsY3VsYSBjb21vIHNpIGZ1ZXJhIGNvbiByZXBvc2ljacOzbi4iLCJjIjoxfSx7ImlkIjoiejRqMiIsInpvbmEiOjQsInRpcG8iOiJqIiwidGVtYSI6IlByb2JhYmlsaWRhZCIsImVudW4iOiJFbiB1biBuaWRvIGhheSA2IGh1ZXZvcyBkZSBkcmFnw7NuIHJvam9zIHkgYWxndW5vcyBhenVsZXMuIEFsIGVsZWdpciB1biBodWV2byBhbCBhemFyLCBsYSBwcm9iYWJpbGlkYWQgZGUgcXVlIHNlYSByb2pvIGVzIDIvNS4iLCJwcmVnIjoiwr9DdcOhbnRvcyBodWV2b3MgYXp1bGVzIGhheT8iLCJvcHMiOlsiNCIsIjEwIiwiOSIsIjE1Il0sImV4cCI6IlNpIDYgaHVldm9zIHNvbiBsb3MgMi81IGRlbCB0b3RhbCwgZWwgdG90YWwgZXMgNiDCtyA1LzIgPSAxNS4gRW50b25jZXMgaGF5IDE1IOKIkiA2ID0gOSBhenVsZXMuIEVsIDE1IGVzIGVsIHRvdGFsIGRlIGh1ZXZvcywgbm8gbG9zIGF6dWxlcy4iLCJjIjowfSx7ImlkIjoiejRqMyIsInpvbmEiOjQsInRpcG8iOiJqIiwidGVtYSI6IlByb2JhYmlsaWRhZCIsImVudW4iOiJTZSBlbGlnZSBhbCBhemFyIHVuYSBkZSAzMCBydW5hcyBudW1lcmFkYXMgZGVsIDEgYWwgMzAuIiwicHJlZyI6IsK/Q3XDoWwgZXMgbGEgcHJvYmFiaWxpZGFkIGRlIHF1ZSBlbCBuw7ptZXJvIHNlYSBtw7psdGlwbG8gZGUgMyBvIG3Dumx0aXBsbyBkZSA1PyIsIm9wcyI6WyIxLzMiLCI4LzE1IiwiNy8xNSIsIjEvMTUiXSwiZXhwIjoiTcO6bHRpcGxvcyBkZSAzOiAxMC4gTcO6bHRpcGxvcyBkZSA1OiA2LiBMb3MgbcO6bHRpcGxvcyBkZSAxNSAoMTUgeSAzMCkgZXN0w6FuIGVuIGFtYm9zIGdydXBvcywgYXPDrSBxdWUgc2UgcmVzdGFuOiAxMCArIDYg4oiSIDIgPSAxNCwgeSAxNC8zMCA9IDcvMTUuIEVsIDgvMTUgPSAxNi8zMCBubyByZXN0YSBsb3MgcmVwZXRpZG9zOyBlbCAxLzE1IHNvbiBzb2xvIGxvcyBtw7psdGlwbG9zIGRlIDE1LiIsImMiOjF9LHsiaWQiOiJmMSIsInpvbmEiOjUsInRpcG8iOiJmIiwidGVtYSI6Ik1lZGlkYXMiLCJlbnVuIjoiTGEgdGFibGEgbXVlc3RyYSBlbCBvcm8gcXVlIGdhbsOzIHVuIGdydXBvIGRlIG1lcmNlbmFyaW9zIGVuIGNhZGEgbWlzacOzbi4gRWwgcHJvbWVkaW8gZGUgb3JvIHBvciBtaXNpw7NuIGVzIDE4LiIsInRhYmxhIjp7ImVuYyI6WyJPcm8gcG9yIG1pc2nDs24iLCJOLsKwIGRlIG1pc2lvbmVzIl0sImZpbGFzIjpbWzEwLDRdLFsyMCwiYSJdLFszMCwyXV19LCJwcmVnIjoiwr9DdcOhbCBlcyBlbCB2YWxvciBkZSBhPyIsIm9wcyI6WyIwLDQiLCI0IiwiOCIsIjYiXSwiZXhwIjoiKDEwwrc0ICsgMjDCt2EgKyAzMMK3MikgLyAoNCArIGEgKyAyKSA9IDE4LCBhc8OtIHF1ZSAxMDAgKyAyMGEgPSAxMDggKyAxOGEgeSBhID0gNC4gQ29tcHJvYmFjacOzbjogMTgwIC8gMTAgPSAxOC4gRWwgMCw0IGFwYXJlY2Ugc2kgc2UgZGl2aWRlIHNvbG8gcG9yIDYsIG9sdmlkYW5kbyBxdWUgYSB0YW1iacOpbiBzdW1hIGFsIHRvdGFsIGRlIG1pc2lvbmVzLiIsImMiOjB9LHsiaWQiOiJmMiIsInpvbmEiOjUsInRpcG8iOiJmIiwidGVtYSI6IlByb2JhYmlsaWRhZCIsImVudW4iOiJVbiBhcnF1ZXJvIGFjaWVydGEgYWwgYmxhbmNvIGNvbiBwcm9iYWJpbGlkYWQgMy80IGVuIGNhZGEgZGlzcGFyby4gRGlzcGFyYSAzIGZsZWNoYXMgeSBsb3MgZGlzcGFyb3Mgc29uIGluZGVwZW5kaWVudGVzLiIsInByZWciOiLCv0N1w6FsIGVzIGxhIHByb2JhYmlsaWRhZCBkZSBxdWUgYWNpZXJ0ZSBhbCBtZW5vcyB1bmE/Iiwib3BzIjpbIjMvNCIsIjEvNjQiLCI2My82NCIsIjI3LzY0Il0sImV4cCI6IkxvIGNvbnRyYXJpbyBkZSDCq2FsIG1lbm9zIHVuYcK7IGVzIMKrbmluZ3VuYcK7OiAoMS80KcK3KDEvNCnCtygxLzQpID0gMS82NC4gRW50b25jZXMgUCA9IDEg4oiSIDEvNjQgPSA2My82NC4gRWwgMjcvNjQgZXMgYWNlcnRhciBsYXMgdHJlcyB5IGVsIDEvNjQgZXMgZmFsbGFyIGxhcyB0cmVzLiIsImMiOjJ9LHsiaWQiOiJmMyIsInpvbmEiOjUsInRpcG8iOiJmIiwidGVtYSI6Ik1lZGlkYXMiLCJlbnVuIjoiTG9zIGRpYWdyYW1hcyBkZSBjYWrDs24gY29tcGFyYW4gbG9zIHB1bnRhamVzIGRlIGJhdGFsbGEgZGUgZG9zIGNsYW5lcywgQSB5IEIuIiwiZ3JhZiI6eyJ0IjoiYm94Iiwic2VyaWVzIjpbeyJub20iOiJBIiwidiI6WzIwLDMwLDQwLDQ1LDYwXX0seyJub20iOiJCIiwidiI6WzE1LDM1LDM4LDUwLDcwXX1dLCJtaW4iOjEwLCJtYXgiOjgwLCJwYXNvIjoxMCwieGxhYiI6IlB1bnRhamUifSwicHJlZyI6IsK/Q3XDoWwgZGUgbGFzIHNpZ3VpZW50ZXMgYWZpcm1hY2lvbmVzIGVzIHZlcmRhZGVyYT8iLCJvcHMiOlsiRW4gQSwgZWwgNTDCoCUgY2VudHJhbCBlc3TDoSBlbnRyZSAyMCB5IDQ1LiIsIkVsIHJhbmdvIGRlIEEgZXMgbWF5b3IgcXVlIGVsIHJhbmdvIGRlIEIuIiwiRW4gQiwgY2VyY2EgZGVsIDc1wqAlIGRlIGxvcyBwdW50YWplcyBlcyAzNSBvIG3DoXMuIiwiTGEgbWVkaWFuYSBkZSBBIGVzIG1lbm9yIHF1ZSBsYSBtZWRpYW5hIGRlIEIuIl0sImV4cCI6IkVuIEIsIFHigoEgPSAzNTogYmFqbyDDqWwgcXVlZGEgY2VyY2EgZGVsIDI1wqAlIHkgc29icmUgw6lsIGNlcmNhIGRlbCA3NcKgJS4gTGEgbWVkaWFuYSBkZSBBICg0MCkgZXMgbWF5b3IgcXVlIGxhIGRlIEIgKDM4KS4gTG9zIHJhbmdvcyBzb24gNjAg4oiSIDIwID0gNDAgKEEpIHkgNzAg4oiSIDE1ID0gNTUgKEIpLiBFbCA1MMKgJSBjZW50cmFsIGRlIEEgdmEgZGUgUeKCgSA9IDMwIGEgUeKCgyA9IDQ1LiIsImMiOjN9LHsiaWQiOiJmNCIsInpvbmEiOjUsInRpcG8iOiJmIiwidGVtYSI6Ik1lZGlkYXMiLCJlbnVuIjoiTGEgZXN0YXR1cmEgcHJvbWVkaW8gZGUgOSBjYWJhbGxlcm9zIGVzIDE3NSBjbS4gU2UgdW5lIHVuIGTDqWNpbW8gY2FiYWxsZXJvIHkgZWwgcHJvbWVkaW8gc3ViZSBhIDE3NiBjbS4iLCJwcmVnIjoiwr9DdcOhbnRvIG1pZGUgZWwgZMOpY2ltbyBjYWJhbGxlcm8/Iiwib3BzIjpbIjE4MCBjbSIsIjE3NyBjbSIsIjE3NiBjbSIsIjE4NSBjbSJdLCJleHAiOiJBbnRlcyBzdW1hYmFuIDkgwrcgMTc1ID0gMTU3NSBjbTsgYWhvcmEgc3VtYW4gMTAgwrcgMTc2ID0gMTc2MCBjbS4gRWwgbnVldm8gbWlkZSAxNzYwIOKIkiAxNTc1ID0gMTg1IGNtLiBQYXJhIHN1YmlyIDEgY20gZWwgcHJvbWVkaW8gZGUgMTAgcGVyc29uYXMsIHRpZW5lIHF1ZSBhcG9ydGFyIDEwIGNtIG3DoXMgcXVlIGVsIHByb21lZGlvIGFudGVyaW9yOiAxNzUgKyAxMCA9IDE4NS4iLCJjIjoxfSx7ImlkIjoiZjUiLCJ6b25hIjo1LCJ0aXBvIjoiZiIsInRlbWEiOiJQcm9iYWJpbGlkYWQiLCJlbnVuIjoiRWwgZ3LDoWZpY28gbXVlc3RyYSBsb3MgbW9uc3RydW9zIHF1ZSBoYXkgZW4gbGEgw7psdGltYSBtYXptb3JyYS4iLCJncmFmIjp7InQiOiJiYXIiLCJjYXRzIjpbIkVzcXVlbGV0byIsIkFyYcOxYSIsIk11cmNpw6lsYWdvIiwiR8OzbGVtIl0sInZhbHMiOlsxMiw5LDE1LDRdLCJ5bWluIjowLCJ5bWF4IjoxNiwicGFzbyI6NCwieWxhYiI6Ik1vbnN0cnVvcyIsImV0aXEiOnRydWV9LCJwcmVnIjoiU2kgYXBhcmVjZSB1biBtb25zdHJ1byBhbCBhemFyLCDCv2N1w6FsIGVzIGxhIHByb2JhYmlsaWRhZCBkZSBxdWUgTk8gc2VhIG11cmNpw6lsYWdvIG5pIGfDs2xlbT8iLCJvcHMiOlsiMTkvNDAiLCIyMS80MCIsIjEvMiIsIjMvOCJdLCJleHAiOiJIYXkgMTIgKyA5ICsgMTUgKyA0ID0gNDAgbW9uc3RydW9zLiBMb3MgcXVlIG5vIHNvbiBtdXJjacOpbGFnbyBuaSBnw7NsZW0gc29uIGxvcyBlc3F1ZWxldG9zIHkgbGFzIGFyYcOxYXM6IDEyICsgOSA9IDIxLCBhc8OtIHF1ZSBQID0gMjEvNDAuIEVsIDE5LzQwIGVzIGxvIGNvbnRyYXJpbyAobXVyY2nDqWxhZ28gbyBnw7NsZW0pOyBlbCAxLzIgc3Vwb25lIHF1ZSBsb3MgNCB0aXBvcyBzb24gaWd1YWwgZGUgcHJvYmFibGVzLiIsImMiOjB9XQ==");
 const POR_ID = {};
-BANCO.forEach(b => { POR_ID[b.id] = b; });
-const KEY = "rpg-reino-datos-v1";
+BANCO.forEach(b => {
+  let s = 0;
+  for (let i = 0; i < b.id.length; i++) s += b.id.charCodeAt(i);
+  b.k = (b.c - (s % 4) + 4) % 4;   // índice de la correcta dentro de b.ops
+  delete b.c;
+  POR_ID[b.id] = b;
+});
+const KEY = "rpg-reino-datos-v2";
+const MOV_REDUCIDO = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+let confirmar = null;   // confirmación pendiente de una acción que borra datos
 const TEMAS = ["Tablas", "Gráficos", "Medidas", "Probabilidad"];
 
 const ZONAS = [
@@ -178,7 +232,7 @@ function cargar() {
     const raw = localStorage.getItem(KEY);
     if (!raw) return null;
     const o = JSON.parse(raw);
-    return (o && o.v === 1 && o.nombre) ? o : null;
+    return (o && o.v === 2 && o.nombre) ? o : null;
   } catch (e) { return null; }
 }
 function borrar() { try { localStorage.removeItem(KEY); } catch (e) { /* nada */ } }
@@ -235,18 +289,18 @@ function grafBar(g) {
   const y = v => mt + ph - (v - g.ymin) / (g.ymax - g.ymin) * ph;
   for (let v = g.ymin; v <= g.ymax + 1e-9; v += g.paso) {
     s.appendChild(sv("line", { x1: ml, y1: y(v), x2: W - mr, y2: y(v), stroke: "#c9bf9f", "stroke-width": 1 }));
-    s.appendChild(sv("text", { x: ml - 6, y: y(v) + 5, "text-anchor": "end", "font-size": 14, fill: "#2a1f15" }, fmt(v)));
+    s.appendChild(sv("text", { x: ml - 6, y: y(v) + 5, "text-anchor": "end", "font-size": 15, fill: "#2a1f15" }, fmt(v)));
   }
   const n = g.cats.length, slot = pw / n, bw = slot * 0.58;
   g.vals.forEach((v, i) => {
     const x = ml + slot * i + (slot - bw) / 2;
     s.appendChild(sv("rect", { x: x, y: y(v), width: bw, height: y(g.ymin) - y(v), fill: COL[0] }));
-    if (g.etiq) s.appendChild(sv("text", { x: x + bw / 2, y: y(v) - 5, "text-anchor": "middle", "font-size": 14, "font-weight": 700, fill: "#2a1f15" }, fmt(v)));
-    s.appendChild(sv("text", { x: x + bw / 2, y: mt + ph + 19, "text-anchor": "middle", "font-size": 14, fill: "#2a1f15" }, g.cats[i]));
+    if (g.etiq) s.appendChild(sv("text", { x: x + bw / 2, y: y(v) - 5, "text-anchor": "middle", "font-size": 15, "font-weight": 700, fill: "#2a1f15" }, fmt(v)));
+    s.appendChild(sv("text", { x: x + bw / 2, y: mt + ph + 19, "text-anchor": "middle", "font-size": 15, fill: "#2a1f15" }, g.cats[i]));
   });
   s.appendChild(sv("line", { x1: ml, y1: mt - 4, x2: ml, y2: mt + ph, stroke: "#2a1f15", "stroke-width": 1.5 }));
   s.appendChild(sv("line", { x1: ml, y1: mt + ph, x2: W - mr, y2: mt + ph, stroke: "#2a1f15", "stroke-width": 1.5 }));
-  if (g.ylab) s.appendChild(sv("text", { x: 13, y: mt + ph / 2, "text-anchor": "middle", "font-size": 14, fill: "#2a1f15", transform: `rotate(-90 13 ${mt + ph / 2})` }, g.ylab));
+  if (g.ylab) s.appendChild(sv("text", { x: 13, y: mt + ph / 2, "text-anchor": "middle", "font-size": 15, fill: "#2a1f15", transform: `rotate(-90 13 ${mt + ph / 2})` }, g.ylab));
   return s;
 }
 function grafHist(g) {
@@ -257,21 +311,21 @@ function grafHist(g) {
   const y = v => mt + ph - v / g.ymax * ph;
   for (let v = 0; v <= g.ymax + 1e-9; v += g.paso) {
     s.appendChild(sv("line", { x1: ml, y1: y(v), x2: W - mr, y2: y(v), stroke: "#c9bf9f", "stroke-width": 1 }));
-    s.appendChild(sv("text", { x: ml - 6, y: y(v) + 5, "text-anchor": "end", "font-size": 14, fill: "#2a1f15" }, fmt(v)));
+    s.appendChild(sv("text", { x: ml - 9, y: y(v) + 5, "text-anchor": "end", "font-size": 15, fill: "#2a1f15" }, fmt(v)));
   }
   g.f.forEach((f, i) => {
     const a = x(g.lims[i]), b = x(g.lims[i + 1]);
     s.appendChild(sv("rect", { x: a, y: y(f), width: b - a, height: y(0) - y(f), fill: COL[0], stroke: "#fff", "stroke-width": 1.5 }));
-    s.appendChild(sv("text", { x: (a + b) / 2, y: y(f) - 5, "text-anchor": "middle", "font-size": 14, "font-weight": 700, fill: "#2a1f15" }, fmt(f)));
+    s.appendChild(sv("text", { x: (a + b) / 2, y: y(f) - 5, "text-anchor": "middle", "font-size": 15, "font-weight": 700, fill: "#2a1f15" }, fmt(f)));
   });
   g.lims.forEach(v => {
     s.appendChild(sv("line", { x1: x(v), y1: mt + ph, x2: x(v), y2: mt + ph + 5, stroke: "#2a1f15", "stroke-width": 1.5 }));
-    s.appendChild(sv("text", { x: x(v), y: mt + ph + 20, "text-anchor": "middle", "font-size": 14, fill: "#2a1f15" }, fmt(v)));
+    s.appendChild(sv("text", { x: x(v), y: mt + ph + 23, "text-anchor": "middle", "font-size": 15, fill: "#2a1f15" }, fmt(v)));
   });
   s.appendChild(sv("line", { x1: ml, y1: mt - 4, x2: ml, y2: mt + ph, stroke: "#2a1f15", "stroke-width": 1.5 }));
   s.appendChild(sv("line", { x1: ml, y1: mt + ph, x2: W - mr, y2: mt + ph, stroke: "#2a1f15", "stroke-width": 1.5 }));
-  if (g.xlab) s.appendChild(sv("text", { x: ml + pw / 2, y: H - 6, "text-anchor": "middle", "font-size": 14, fill: "#2a1f15" }, g.xlab));
-  if (g.ylab) s.appendChild(sv("text", { x: 13, y: mt + ph / 2, "text-anchor": "middle", "font-size": 14, fill: "#2a1f15", transform: `rotate(-90 13 ${mt + ph / 2})` }, g.ylab));
+  if (g.xlab) s.appendChild(sv("text", { x: ml + pw / 2, y: H - 6, "text-anchor": "middle", "font-size": 15, fill: "#2a1f15" }, g.xlab));
+  if (g.ylab) s.appendChild(sv("text", { x: 13, y: mt + ph / 2, "text-anchor": "middle", "font-size": 15, fill: "#2a1f15", transform: `rotate(-90 13 ${mt + ph / 2})` }, g.ylab));
   return s;
 }
 function grafLine(g) {
@@ -280,19 +334,19 @@ function grafLine(g) {
   const y = v => mt + ph - (v - g.ymin) / (g.ymax - g.ymin) * ph;
   for (let v = g.ymin; v <= g.ymax + 1e-9; v += g.paso) {
     s.appendChild(sv("line", { x1: ml, y1: y(v), x2: W - mr, y2: y(v), stroke: "#c9bf9f", "stroke-width": 1 }));
-    s.appendChild(sv("text", { x: ml - 6, y: y(v) + 5, "text-anchor": "end", "font-size": 14, fill: "#2a1f15" }, fmt(v)));
+    s.appendChild(sv("text", { x: ml - 6, y: y(v) + 5, "text-anchor": "end", "font-size": 15, fill: "#2a1f15" }, fmt(v)));
   }
   const n = g.cats.length, slot = pw / n;
   const px = i => ml + slot * i + slot / 2;
   s.appendChild(sv("polyline", { points: g.vals.map((v, i) => px(i) + "," + y(v)).join(" "), fill: "none", stroke: COL[0], "stroke-width": 3 }));
   g.vals.forEach((v, i) => {
     s.appendChild(sv("circle", { cx: px(i), cy: y(v), r: 5, fill: COL[0], stroke: "#fff", "stroke-width": 1.5 }));
-    if (g.etiq) s.appendChild(sv("text", { x: px(i), y: y(v) - 10, "text-anchor": "middle", "font-size": 14, "font-weight": 700, fill: "#2a1f15" }, fmt(v)));
-    s.appendChild(sv("text", { x: px(i), y: mt + ph + 19, "text-anchor": "middle", "font-size": 14, fill: "#2a1f15" }, g.cats[i]));
+    if (g.etiq) s.appendChild(sv("text", { x: px(i), y: y(v) - 10, "text-anchor": "middle", "font-size": 15, "font-weight": 700, fill: "#2a1f15" }, fmt(v)));
+    s.appendChild(sv("text", { x: px(i), y: mt + ph + 19, "text-anchor": "middle", "font-size": 15, fill: "#2a1f15" }, g.cats[i]));
   });
   s.appendChild(sv("line", { x1: ml, y1: mt - 4, x2: ml, y2: mt + ph, stroke: "#2a1f15", "stroke-width": 1.5 }));
   s.appendChild(sv("line", { x1: ml, y1: mt + ph, x2: W - mr, y2: mt + ph, stroke: "#2a1f15", "stroke-width": 1.5 }));
-  if (g.ylab) s.appendChild(sv("text", { x: 13, y: mt + ph / 2, "text-anchor": "middle", "font-size": 14, fill: "#2a1f15", transform: `rotate(-90 13 ${mt + ph / 2})` }, g.ylab));
+  if (g.ylab) s.appendChild(sv("text", { x: 13, y: mt + ph / 2, "text-anchor": "middle", "font-size": 15, fill: "#2a1f15", transform: `rotate(-90 13 ${mt + ph / 2})` }, g.ylab));
   return s;
 }
 function grafPie(g) {
@@ -309,7 +363,7 @@ function grafPie(g) {
   g.cats.forEach((c, i) => {
     const yy = 50 + i * 32;
     s.appendChild(sv("rect", { x: 212, y: yy - 14, width: 18, height: 18, rx: 3, fill: COL[i % COL.length] }));
-    s.appendChild(sv("text", { x: 238, y: yy, "font-size": 15, fill: "#2a1f15" }, c + ": " + fmt(g.pct[i]) + "\u00a0%"));
+    s.appendChild(sv("text", { x: 238, y: yy, "font-size": 16, fill: "#2a1f15" }, c + ": " + fmt(g.pct[i]) + "\u00a0%"));
   });
   return s;
 }
@@ -323,10 +377,10 @@ function grafBox(g) {
   for (let v = g.min; v <= g.max + 1e-9; v += g.paso) {
     s.appendChild(sv("line", { x1: x(v), y1: mt, x2: x(v), y2: yAx, stroke: "#ddd2b3", "stroke-width": 1 }));
     s.appendChild(sv("line", { x1: x(v), y1: yAx, x2: x(v), y2: yAx + 5, stroke: "#2a1f15", "stroke-width": 1.5 }));
-    s.appendChild(sv("text", { x: x(v), y: yAx + 20, "text-anchor": "middle", "font-size": 13, fill: "#2a1f15" }, fmt(v)));
+    s.appendChild(sv("text", { x: x(v), y: yAx + 20, "text-anchor": "middle", "font-size": 15, fill: "#2a1f15" }, fmt(v)));
   }
   s.appendChild(sv("line", { x1: ml, y1: yAx, x2: W - mr, y2: yAx, stroke: "#2a1f15", "stroke-width": 1.5 }));
-  if (g.xlab) s.appendChild(sv("text", { x: ml + pw / 2, y: H - 4, "text-anchor": "middle", "font-size": 14, fill: "#2a1f15" }, g.xlab));
+  if (g.xlab) s.appendChild(sv("text", { x: ml + pw / 2, y: H - 4, "text-anchor": "middle", "font-size": 15, fill: "#2a1f15" }, g.xlab));
   g.series.forEach((se, k) => {
     const yc = mt + k * filaH + filaH / 2 + 2, bh = 26;
     const [mn, q1, me, q3, mx] = se.v;
@@ -339,7 +393,7 @@ function grafBox(g) {
     s.appendChild(sv("line", { x1: x(me), y1: yc - bh / 2, x2: x(me), y2: yc + bh / 2, stroke: c, "stroke-width": 3.5 }));
     [[mn, -1], [q1, 1], [me, -1], [q3, 1], [mx, -1]].forEach(([v, lado]) => {
       const yy = lado < 0 ? yc - bh / 2 - 6 : yc + bh / 2 + 17;
-      s.appendChild(sv("text", { x: x(v), y: yy, "text-anchor": "middle", "font-size": 13, "font-weight": 700, fill: "#2a1f15" }, fmt(v)));
+      s.appendChild(sv("text", { x: x(v), y: yy, "text-anchor": "middle", "font-size": 15, "font-weight": 700, fill: "#2a1f15" }, fmt(v)));
     });
     if (se.nom) s.appendChild(sv("text", { x: 12, y: yc + 6, "text-anchor": "middle", "font-size": 17, "font-weight": 800, fill: "#2a1f15" }, se.nom));
   });
@@ -408,7 +462,7 @@ function tablaDe(it) {
 function nuevoEstado(nombre, clase) {
   const c = CLASES[clase];
   return {
-    v: 1, nombre: nombre, clase: clase, hpMax: c.hp, hp: c.hp, oro: 20, xp: 0,
+    v: 2, nombre: nombre, clase: clase, hpMax: c.hp, hp: c.hp, oro: 20, xp: 0,
     items: { pocion: 1, pergamino: clase === "mago" ? 1 : 0, escudo: 0 }, escudoActivo: false,
     zona: 0, desbloq: 0, enemigo: 0, enemigoHp: 1, pools: {},
     stats: { "Tablas": [0, 0], "Gráficos": [0, 0], "Medidas": [0, 0], "Probabilidad": [0, 0] },
@@ -435,7 +489,7 @@ function nuevaPregunta() {
   const e = enemigoActual();
   const clave = e.final ? "5f" : (S.zona + 1) + e.tipo;
   const id = sacarItem(clave, S.q ? S.q.id : null);
-  S.q = { id: id, orden: barajar([0, 1, 2, 3]), elim: [], t0: Date.now() };
+  S.q = { id: id, orden: barajar([0, 1, 2, 3]), elim: [], sel: null, t0: Date.now() };
   S.fb = null;
 }
 function entrarZona(i) {
@@ -459,11 +513,18 @@ function ganarOro(n) {
   S.oro += g;
   return g;
 }
+function seleccionar(pos, porTeclado) {
+  if (!S || S.fase !== "batalla" || S.fb || !S.q || S.q.elim.indexOf(pos) >= 0) return;
+  S.q.sel = pos;
+  guardar(); render(false);
+  const b = document.getElementById("atacar");
+  if (porTeclado && b) b.focus({ preventScroll: false });
+}
 function responder(pos) {
-  if (S.fb || !S.q) return;
+  if (S.fb || !S.q || pos === null || pos === undefined) return;
   const it = POR_ID[S.q.id];
   const e = enemigoActual();
-  const ok = S.q.orden[pos] === 0;
+  const ok = S.q.orden[pos] === it.k;
   const dt = Date.now() - S.q.t0;
   const msgs = [];
   S.preguntas++;
@@ -507,7 +568,9 @@ function responder(pos) {
   guardar();
   render(false);
   const f = document.getElementById("fb");
-  if (f && f.scrollIntoView) f.scrollIntoView({ behavior: "smooth", block: "start" });
+  const bc = document.getElementById("continuar");
+  if (bc) { try { bc.focus({ preventScroll: true }); } catch (e) { /* nada */ } }
+  if (f && f.scrollIntoView) f.scrollIntoView({ behavior: MOV_REDUCIDO ? "auto" : "smooth", block: "start" });
 }
 function continuar() {
   const fb = S.fb;
@@ -553,8 +616,10 @@ function usarPocion() {
 }
 function usarPergamino() {
   if (S.items.pergamino <= 0 || !S.q || S.fb || S.q.elim.length) return;
-  const malas = [0, 1, 2, 3].filter(p => S.q.orden[p] !== 0);
+  const k = POR_ID[S.q.id].k;
+  const malas = [0, 1, 2, 3].filter(p => S.q.orden[p] !== k);
   S.q.elim = barajar(malas).slice(0, 2);
+  if (S.q.elim.indexOf(S.q.sel) >= 0) S.q.sel = null;
   S.items.pergamino--;
   guardar(); render(false);
 }
@@ -669,13 +734,21 @@ function vistaInicio() {
       h("h2", { text: fin ? "Tu aventura terminó" : "Partida guardada" }),
       h("p", { text: (fin ? "Ficha de " : "Partida de ") + guardada.nombre + "." }),
       h("button", { class: "btn", type: "button", onclick: () => { S = guardada; render(true); }, text: fin ? "Ver mi ficha de héroe" : "▶ Continuar partida" }),
-      h("button", { class: "btn sec", type: "button", onclick: () => { borrar(); render(true); }, text: "Empezar una partida nueva" })
+      confirmar === "nueva"
+        ? h("div", { class: "panel confirma", id: "confirmar" }, [
+            h("p", { text: "¿Seguro? Se borrará " + (fin ? "la ficha" : "la partida") + " de " + guardada.nombre + " y no se puede recuperar." }),
+            h("button", { class: "btn peligro", id: "si-borrar", type: "button", onclick: () => { confirmar = null; borrar(); render(true); }, text: "Sí, borrar y empezar de cero" }),
+            h("button", { class: "btn sec", id: "no-borrar", type: "button", onclick: () => { confirmar = null; render(false); }, text: "No, volver" })
+          ])
+        : h("button", { class: "btn sec", id: "nueva", type: "button", onclick: () => { confirmar = "nueva"; render(false); }, text: "Empezar una partida nueva" })
     ]));
     app.replaceChildren(...nodos);
     return;
   }
   let claseSel = null;
-  const inp = h("input", { class: "txt", id: "nombre", type: "text", maxlength: 40, autocomplete: "off", placeholder: "Ej.: Camila Rojas" });
+  const inp = h("input", { class: "txt", id: "nombre", type: "text", maxlength: 40, autocomplete: "off", autocapitalize: "words",
+    enterkeyhint: "go", placeholder: "Ej.: Camila Rojas" });
+  inp.addEventListener("keydown", ev => { if (ev.key === "Enter") { ev.preventDefault(); const b = document.getElementById("comenzar"); if (b) b.click(); } });
   const err = h("div", { class: "err", id: "err" });
   const botones = Object.keys(CLASES).map(k => {
     const c = CLASES[k];
@@ -761,18 +834,27 @@ function vistaBatalla() {
   const fig = figura(it); if (fig) carta.appendChild(fig);
   carta.appendChild(h("p", { class: "preg", text: it.preg }));
   const ops = h("div", { class: "ops" });
+  const sel = (S.q.sel === undefined) ? null : S.q.sel;
   S.q.orden.forEach((orig, pos) => {
-    let cls = "op";
-    if (S.q.elim.indexOf(pos) >= 0) cls += " elim";
+    let cls = "op", marca = null, etiqueta = "Alternativa " + "ABCD"[pos];
+    const elim = S.q.elim.indexOf(pos) >= 0;
+    if (elim) { cls += " elim"; etiqueta += ", descartada"; }
     if (fb) {
-      if (orig === 0) cls += " bien";
-      else if (pos === fb.pos) cls += " malo";
-    }
-    const dis = !!fb || S.q.elim.indexOf(pos) >= 0;
-    ops.appendChild(h("button", { class: cls, type: "button", "data-pos": pos, disabled: dis, onclick: () => responder(pos) },
-      [h("span", { class: "let", text: "ABCD"[pos] }), h("span", { text: it.ops[orig] })]));
+      if (orig === it.k) { cls += " bien"; marca = pos === fb.pos ? "✔ Correcta" : "✔ Era esta"; }
+      else if (pos === fb.pos) { cls += " malo"; marca = "✘ Tu respuesta"; }
+    } else if (pos === sel) cls += " sel";
+    const kids = [h("span", { class: "let", "aria-hidden": "true", text: "ABCD"[pos] }), h("span", { class: "txt", text: it.ops[orig] })];
+    if (marca) kids.push(h("span", { class: "marca", text: marca }));
+    ops.appendChild(h("button", { class: cls, type: "button", "data-pos": pos, disabled: !!fb || elim,
+      "aria-pressed": fb ? null : (pos === sel ? "true" : "false"), "aria-label": etiqueta + ": " + it.ops[orig] + (marca ? " — " + marca : ""),
+      onclick: () => seleccionar(pos, false) }, kids));
   });
   carta.appendChild(ops);
+  if (!fb) {
+    carta.appendChild(h("button", { class: "btn atacar", id: "atacar", type: "button", disabled: sel === null,
+      onclick: () => responder(S.q.sel),
+      text: sel === null ? "Toca una alternativa para elegirla" : "⚔️ Atacar con la alternativa " + "ABCD"[sel] }));
+  }
   const nodos = [hud(), enemigo, carta];
   if (!fb) {
     const itms = h("div", { class: "items" }, [
@@ -782,9 +864,10 @@ function vistaBatalla() {
     ]);
     nodos.push(itms);
     if (S.escudoActivo) nodos.push(h("div", { class: "escudo-on", text: "🛡️ Escudo activo: tu próximo error no te quitará vida." }));
+    nodos.push(h("div", { class: "atajo", text: "En computador: teclas A, B, C o D para elegir y Enter para atacar." }));
   } else {
     const exp = h("div", { class: "exp" }, [h("b", { text: "Explicación: " }), it.exp]);
-    const caja = h("div", { class: "panel fb " + (fb.ok ? "bien" : "malo"), id: "fb" }, [
+    const caja = h("div", { class: "panel fb " + (fb.ok ? "bien" : "malo"), id: "fb", role: "status", "aria-live": "polite" }, [
       h("h3", { text: fb.ok ? "✔ ¡Correcto!" : "✘ Incorrecto" }),
       h("ul", null, fb.msgs.map(m => h("li", { text: m }))),
       fb.ok ? h("details", null, [h("summary", { text: "Ver explicación" }), exp]) : exp,
@@ -860,7 +943,13 @@ function vistaFinal() {
       salida,
       h("details", { style: "margin-top:8px" }, [h("summary", { text: "Ver el texto del resumen" }), h("pre", { style: "white-space:pre-wrap;font-size:15px;user-select:text", text: texto })])
     ]),
-    h("button", { class: "btn sec", type: "button", onclick: () => { borrar(); S = null; render(true); }, text: "Jugar de nuevo (otra partida)" })
+    confirmar === "final"
+      ? h("div", { class: "panel confirma", id: "confirmar" }, [
+          h("p", { text: "¿Seguro? Se borrará tu ficha de héroe. Si todavía no la pegas en Classroom, cópiala primero." }),
+          h("button", { class: "btn peligro", id: "si-borrar", type: "button", onclick: () => { confirmar = null; borrar(); S = null; render(true); }, text: "Sí, borrar y jugar de nuevo" }),
+          h("button", { class: "btn sec", id: "no-borrar", type: "button", onclick: () => { confirmar = null; render(false); }, text: "No, volver" })
+        ])
+      : h("button", { class: "btn sec", id: "nueva", type: "button", onclick: () => { confirmar = "final"; render(false); }, text: "Jugar de nuevo (otra partida)" })
   );
 }
 function render(arriba) {
@@ -877,9 +966,21 @@ setInterval(() => {
   const r = document.getElementById("reloj");
   if (r && S) r.textContent = "⏱️ " + mmss(transcurrido());
 }, 1000);
+document.addEventListener("keydown", ev => {
+  if (!S || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+  const tag = ev.target && ev.target.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA") return;
+  if (S.fase === "batalla" && !S.fb) {
+    const mapa = { a: 0, b: 1, c: 2, d: 3, "1": 0, "2": 1, "3": 2, "4": 3 };
+    const k = (ev.key || "").toLowerCase();
+    if (k in mapa) { ev.preventDefault(); seleccionar(mapa[k], true); return; }
+    if (ev.key === "Enter" && tag !== "BUTTON" && S.q && S.q.sel !== null && S.q.sel !== undefined) { ev.preventDefault(); responder(S.q.sel); }
+  } else if (S.fase === "batalla" && S.fb && ev.key === "Enter" && tag !== "BUTTON") {
+    ev.preventDefault(); continuar();
+  }
+});
 window.__RPG_TEST = Object.freeze({
   estado: () => S ? JSON.parse(JSON.stringify(S)) : null,
-  correcta: () => (S && S.q) ? S.q.orden.indexOf(0) : -1,
   resumen: () => S ? resumenTexto() : ""
 });
 render(true);
